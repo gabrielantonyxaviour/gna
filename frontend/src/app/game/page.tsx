@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
+import RetroConversationComponent from '@/components/Converstation';
 class GameScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -225,5 +226,95 @@ class GameScene extends Phaser.Scene {
       this.enterGraveButton.setVisible(false);
     }
   }
+  enterPub() {
+    // Create new tilemap for pub interior
+    const pubInteriorMap = this.make.tilemap({ key: 'pubInteriorMap' });
+    const tilesetInterior = pubInteriorMap.addTilesetImage('pubInterior', 'pubinterior');
 
+    if (!tilesetInterior) {
+      console.error("Failed to load pub interior tileset");
+      return;
+    }
+
+    // Clear existing layers
+    this.groundLayer.destroy();
+    this.propsLayer.destroy();
+    this.pubLayer.destroy();
+    this.inchLayer.destroy();
+    this.bgL2Layer.destroy();
+    this.graveRails.destroy();
+    this.graveSalt.destroy();
+    this.graveProps.destroy();
+    this.graveBg.destroy();
+
+    // Create new layers for pub interior
+    this.groundLayer = pubInteriorMap.createLayer('ground', tilesetInterior)!;
+    this.propsLayer = pubInteriorMap.createLayer('background', tilesetInterior)!;
+
+    if (!this.groundLayer || !this.propsLayer) {
+      console.error("Failed to create pub interior layers");
+      return;
+    }
+
+    // Adjust world bounds and camera
+    this.physics.world.setBounds(0, 0, pubInteriorMap.widthInPixels, pubInteriorMap.heightInPixels);
+    this.cameras.main.setBounds(0, 0, pubInteriorMap.widthInPixels, pubInteriorMap.heightInPixels);
+
+    // Set player position inside pub
+    this.player.setPosition(10, pubInteriorMap.heightInPixels - 50);
+
+    // Hide enter button
+    this.enterButton.setVisible(false);
+
+    // Set collision for ground layer
+    this.groundLayer.setCollisionByExclusion([-1], true);
+
+    // Remove existing colliders
+    this.physics.world.colliders.destroy();
+
+    // Add new collider
+    this.physics.add.collider(this.player, this.groundLayer);
+
+    console.log("Entered pub. Ground layer:", this.groundLayer);
+  }
 }
+const GameComponent: React.FC = () => {
+    const gameRef = useRef<Phaser.Game | null>(null);
+  
+    useEffect(() => {
+      const config: Phaser.Types.Core.GameConfig = {
+        type: Phaser.AUTO,
+        width: 640,
+        height: 480,
+        physics: {
+          default: 'arcade',
+          arcade: {
+            gravity: { x: 100, y: 700 },
+            debug: false
+          }
+        },
+        scene: GameScene,
+        parent: 'phaser-game'
+      };
+  
+      gameRef.current = new Phaser.Game(config);
+  
+      return () => {
+        if (gameRef.current) {
+          gameRef.current.destroy(true);
+        }
+      };
+    }, []);
+  
+    return (<div className='flex justify-center items-center'>
+      <div className='flex flex-col justify-center items-center w-[640px]'>
+      {/* <DynamicWidget variant='dropdown' /> */}
+  
+        <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
+  
+        <RetroConversationComponent />
+      </div>
+    </div>);
+  };
+  
+  export default GameComponent;
