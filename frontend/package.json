@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@1inch/fusion-sdk": "^2.1.5",
+    "@dynamic-labs/sdk-react-core": "^3.1.1",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-avatar": "^1.1.0",
@@ -25,7 +26,7 @@
     "@radix-ui/react-toast": "^1.2.1",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.44.2",
-    "@tanstack/react-query": "^5.51.1",
+    "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-table": "^8.20.1",
     "@worldcoin/idkit": "^1.2.0",
     "axios": "^1.7.2",
