@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Action from "./_components/action";
 
 export default function Transaction({
   mission,
@@ -7,5 +8,5 @@ export default function Transaction({
   mission: number;
   setMission: (mission: number) => void;
 }) {
-  return <div></div>;
+  return <Action mission={mission} setMission={setMission} />;
 }
