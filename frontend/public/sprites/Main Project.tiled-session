@@ -8,6 +8,7 @@
         "jsons",
         "."
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
             "scaleInDock": 1,
@@ -47,10 +48,10 @@
         },
         "jsons/bgL2.json": {
             "scale": 1,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 800.5,
-                "y": 234
+                "x": 236,
+                "y": 249
             }
         },
         "jsons/bgL2.json#1inch_color_black": {
@@ -63,6 +64,9 @@
             "scaleInDock": 1
         },
         "jsons/bgL2.json#logo1": {
+            "scaleInDock": 1
+        },
+        "jsons/bgL2.json#logo4": {
             "scaleInDock": 1
         },
         "jsons/brush.tsx": {

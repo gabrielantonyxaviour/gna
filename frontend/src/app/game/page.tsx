@@ -152,7 +152,7 @@ class GameScene extends Phaser.Scene {
         this.exitButton.on('pointerdown', this.enterPub, this);
         this.exitButton.setVisible(false);
         this.exitButton.setDepth(7);
-        this.pubExit = { x: 400, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
+        this.pubExit = { x: 50, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
         // Create enter button (initially hidden)
         this.enterGraveButton = this.add.text(0, 0, 'Enter Grave', { 
           fontSize: '24px', 
@@ -233,9 +233,9 @@ class GameScene extends Phaser.Scene {
   }
   checkPubExitProximity() {
     const playerIsInFrontOfPub = 
-      this.player.x >= this.pubEntrance.x &&
-      this.player.x <= this.pubEntrance.x + this.pubEntrance.width &&
-      Math.abs(this.player.y - this.pubEntrance.y) < 20; // Allow some vertical tolerance
+      this.player.x >= this.pubExit.x &&
+      this.player.x <= this.pubExit.x + this.pubExit.width &&
+      Math.abs(this.player.y - this.pubExit.y) < 20; // Allow some vertical tolerance
 
     if (playerIsInFrontOfPub) {
       this.exitButton.setVisible(true);
@@ -281,7 +281,7 @@ class GameScene extends Phaser.Scene {
     this.propsLayer.destroy();
     this.pubLayer.destroy();
     this.inchLayer.destroy();
-    this.bgL2Layer.destroy();
+    // this.bgL2Layer.destroy();
     this.graveRails.destroy();
     this.graveSalt.destroy();
     this.graveProps.destroy();
@@ -290,7 +290,8 @@ class GameScene extends Phaser.Scene {
     // Create new layers for pub interior
     this.groundLayer = pubInteriorMap.createLayer('ground', tilesetInterior)!;
     this.propsLayer = pubInteriorMap.createLayer('background', tilesetInterior)!;
-
+    this.groundLayer.setDepth(2);
+    this.propsLayer.setDepth(1);    
     if (!this.groundLayer || !this.propsLayer) {
       console.error("Failed to create pub interior layers");
       return;
@@ -301,7 +302,7 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, pubInteriorMap.widthInPixels, pubInteriorMap.heightInPixels);
 
     // Set player position inside pub
-    this.player.setPosition(10, pubInteriorMap.heightInPixels - 50);
+    this.player.setPosition(10, pubInteriorMap.heightInPixels/3);
 
     // Hide enter button
     this.enterButton.setVisible(false);
