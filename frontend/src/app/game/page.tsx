@@ -192,5 +192,38 @@ class GameScene extends Phaser.Scene {
         this.checkPubProximity();
         this.checkGraveProximity();
       }
-      
+
+  checkPubProximity() {
+    const playerIsInFrontOfPub = 
+      this.player.x >= this.pubEntrance.x &&
+      this.player.x <= this.pubEntrance.x + this.pubEntrance.width &&
+      Math.abs(this.player.y - this.pubEntrance.y) < 20; // Allow some vertical tolerance
+
+    if (playerIsInFrontOfPub) {
+      this.enterButton.setVisible(true);
+      this.enterButton.setPosition(
+        this.player.x,
+        this.player.y - 50
+      );
+    } else {
+      this.enterButton.setVisible(false);
+    }
+  }
+  checkGraveProximity() {
+    const playerIsInFrontOfGrave = 
+      this.player.x >= this.graveEntrance.x &&
+      this.player.x <= this.graveEntrance.x + this.graveEntrance.width &&
+      Math.abs(this.player.y - this.graveEntrance.y) < 20; // Allow some vertical tolerance
+
+    if (playerIsInFrontOfGrave) {
+      this.enterGraveButton.setVisible(true);
+      this.enterGraveButton.setPosition(
+        this.player.x,
+        this.player.y - 50
+      );
+    } else {
+      this.enterGraveButton.setVisible(false);
+    }
+  }
+
 }
