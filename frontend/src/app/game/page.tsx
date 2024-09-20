@@ -149,7 +149,7 @@ class GameScene extends Phaser.Scene {
     
         this.graveEntrance = { x: 1100, y: 400, width: 64 };
         this.exitButton.setInteractive();
-        this.exitButton.on('pointerdown', this.enterPub, this);
+        this.exitButton.on('pointerdown', this.exitPub, this);
         this.exitButton.setVisible(false);
         this.exitButton.setDepth(7);
         this.pubExit = { x: 50, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
@@ -276,7 +276,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // Clear existing layers
-    this.bgL2Logo.destroy();
+    this.bgL2Logo.setVisible(false);
     this.groundLayer.destroy();
     this.propsLayer.destroy();
     this.pubLayer.destroy();
@@ -322,12 +322,100 @@ class GameScene extends Phaser.Scene {
     this.events.emit('enteredPub');
   }
 
+ 
   exitPub() {
+    console.log("Exiting pub...");
     this.isInPub = false;
-    // Logic to exit the pub and return to the main scene
-    // This would involve recreating the main scene layers and resetting the player position
-    // You'll need to implement this based on your game's structure
+    this.exitButton.setVisible(false);
+    // Remove existing colliders
+    this.physics.world.colliders.destroy();
+    this.bgL2Logo.setVisible(true);
+  
+    // Destroy pub layers
+    if (this.groundLayer) this.groundLayer.destroy();
+    if (this.propsLayer) this.propsLayer.destroy();
+  
+    // Recreate main scene layers
+    const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
+    background.setDisplaySize(this.sys.game.config.width as number, this.sys.game.config.height as number);
+    background.setScrollFactor(0);
+    background.setDepth(0);
+  
+    // Recreate ground tilemap
+    const groundMap = this.make.tilemap({ key: 'groundMap' });
+    if (!groundMap) {
+      console.error("Failed to create groundMap");
+      return;
+    }
+    
+    // Add tilesets
+    const tilesTileset = groundMap.addTilesetImage('Tiles', 'Tiles');
+    const propsTileset = groundMap.addTilesetImage('Props-01', 'Props');
+    const buildingsTileset = groundMap.addTilesetImage('Buildings', 'Buildings');
+    const inchTileset = groundMap.addTilesetImage('1inch_color_black', '1inch');
+    const graveTileset = groundMap.addTilesetImage('graveTiles', 'GraveTiles');
+    const graveSalt = groundMap.addTilesetImage('Salt', 'Salt');
+    const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2');
+  
+    if (!tilesTileset || !propsTileset || !buildingsTileset || !inchTileset || !graveTileset || !graveSalt || !graveBg) {
+      console.error("Failed to load one or more tilesets");
+      return;
+    }
+    // Recreate layers
+    this.groundLayer = groundMap.createLayer('Ground', tilesTileset)!;
+    this.propsLayer = groundMap.createLayer('Props', propsTileset)!;
+    this.pubLayer = groundMap.createLayer('Pub', buildingsTileset)!;
+    this.graveRails = groundMap.createLayer('Grave Rails', graveTileset)!;
+    this.graveSalt = groundMap.createLayer('Grave Salt', graveSalt)!;
+    this.graveProps = groundMap.createLayer('Grave Props', graveTileset)!;
+    this.graveBg = groundMap.createLayer('GraveBG', graveBg)!;
+    this.inchLayer = groundMap.createLayer('1inch', [inchTileset, propsTileset])!;
+  
+    if (!this.groundLayer) {
+      console.error("Failed to create ground layer");
+      return;
+    }
+  
+    // Set world bounds
+    this.physics.world.setBounds(0, 0, groundMap.widthInPixels, groundMap.heightInPixels);
+  
+    // Reset camera
+    this.cameras.main.setBounds(0, 0, groundMap.widthInPixels, groundMap.heightInPixels);
+    this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
+  
+    // Set depths
+    if (this.groundLayer) this.groundLayer.setDepth(2);
+    if (this.propsLayer) this.propsLayer.setDepth(3);
+    if (this.pubLayer) this.pubLayer.setDepth(4);
+    if (this.inchLayer) this.inchLayer.setDepth(5);
+    if (this.graveSalt) this.graveSalt.setDepth(5);
+    if (this.graveProps) this.graveProps.setDepth(5);
+    if (this.graveBg) this.graveBg.setDepth(1);
+    if (this.graveRails) this.graveRails.setDepth(6);
+    this.player.setDepth(7);
+  
+    this.player.setPosition(400, 400);  // Example position, adjust as needed
+  
+    if (this.enterButton) this.enterButton.setVisible(true);
+    if (this.enterGraveButton) this.enterGraveButton.setVisible(true);
+      console.log("Setting up collisions...");
+        this.groundLayer.setCollisionByExclusion([-1], true);
+        this.physics.add.collider(this.player, this.groundLayer);
+        console.log("Collisions set up successfully.");
+    if (this.groundLayer && this.groundLayer.tilemapLayer && this.groundLayer.tilemapLayer.tilemap) {
+        console.log("Setting up collisions...");
+        this.groundLayer.setCollisionByExclusion([-1], true);
+        this.physics.add.collider(this.player, this.groundLayer);
+        console.log("Collisions set up successfully.");
+      } else {
+        console.error("Ground layer or its properties are undefined. Cannot set up collisions.");
+      }
+    console.log("Exited pub. Main scene recreated.");
+  
+    // Emit an event to notify that we've exited the pub
+    this.events.emit('exitedPub');
   }
+
 }
 const GameComponent: React.FC = () => {
     const gameRef = useRef<Phaser.Game | null>(null);
