@@ -3,6 +3,9 @@ import "@/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import LayoutComponent from "@/components/layout-component";
 import { WagmiProvider } from "wagmi";
 import { config } from "@/lib/config";
@@ -31,9 +34,15 @@ export default function RootLayout({
               fontSans.variable
             )}
           >
-            <GrandNounsAutoProvider>
-              <LayoutComponent>{children}</LayoutComponent>
-            </GrandNounsAutoProvider>
+            <ThemeProvider attribute="class" disableTransitionOnChange>
+              <GrandNounsAutoProvider>
+                <LayoutComponent>
+                  {children}
+                  <ThemeSwitcher />
+                  <Toaster />
+                </LayoutComponent>
+              </GrandNounsAutoProvider>
+            </ThemeProvider>
           </body>
         </html>
       </QueryClientProvider>
