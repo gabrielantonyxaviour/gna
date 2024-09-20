@@ -153,4 +153,44 @@ class GameScene extends Phaser.Scene {
         console.log('Pub Layer:', this.pubLayer);
         console.log('1inch Layer:', this.inchLayer);
       }
+      update() {
+        // Player movement
+        if (this.cursors.left.isDown) {
+          this.player.setVelocityX(-160);
+        } else if (this.cursors.right.isDown) {
+          this.player.setVelocityX(160);
+        } else {
+          this.player.setVelocityX(0);
+        }
+    
+        // Jumping
+        if (this.cursors.up.isDown && (this.player.body as Phaser.Physics.Arcade.Body).onFloor()) {
+          this.player.setVelocityY(-330);
+        }
+    
+        // Shooting
+        if (this.spaceKey.isDown && this.time.now - (this.player.getData('lastShootTime') as number) > 500) {
+          const bullet = this.bullets.create(this.player.x, this.player.y, 'bullet') as Phaser.Physics.Arcade.Sprite;
+          bullet.setCircle(4);
+          bullet.setTint(0xff0000);
+          bullet.setDepth(7);
+          if (bullet.body) {
+            (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+          }
+          
+          const velocity = (this.player.body as Phaser.Physics.Arcade.Body).velocity.x > 0 ? 400 : -400;
+          bullet.setVelocity(velocity, 0);
+    
+          this.time.delayedCall(1500, () => {
+            bullet.destroy();
+          });
+    
+          this.player.setData('lastShootTime', this.time.now);
+        }
+    
+        // Check if player is near pub entrance
+        this.checkPubProximity();
+        this.checkGraveProximity();
+      }
+      
 }
