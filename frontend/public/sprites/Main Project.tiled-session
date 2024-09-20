@@ -1,0 +1,156 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "jsons/groundup.json",
+    "expandedProjectPaths": [
+        "jsons",
+        "."
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "BackgroundProps.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "Buildings.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "Props-01.tsx": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "Tiles.tsx": {
+            "scaleInDock": 4,
+            "scaleInEditor": 1
+        },
+        "jsons/1inch_color_black.tsx": {
+            "scaleInDock": 0.25,
+            "scaleInEditor": 1
+        },
+        "jsons/Grass_background_2.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "jsons/Salt.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "jsons/Tiles.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "jsons/bgL2.json": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 800.5,
+                "y": 234
+            }
+        },
+        "jsons/bgL2.json#1inch_color_black": {
+            "scaleInDock": 1
+        },
+        "jsons/bgL2.json#BackgroundProps": {
+            "scaleInDock": 1
+        },
+        "jsons/bgL2.json#Props-01": {
+            "scaleInDock": 1
+        },
+        "jsons/brush.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "jsons/graveTiles.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "jsons/groundup.json": {
+            "expandedGroupLayers": [
+                11
+            ],
+            "scale": 0.99,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 376.26262626262627,
+                "y": 437.37373737373736
+            }
+        },
+        "jsons/groundup.json#1inch_color_black": {
+            "scaleInDock": 1
+        },
+        "jsons/groundup.json#BackgroundProps": {
+            "scaleInDock": 1
+        },
+        "jsons/groundup.json#Buildings": {
+            "scaleInDock": 2
+        },
+        "jsons/groundup.json#Grass_background_2": {
+            "scaleInDock": 1
+        },
+        "jsons/groundup.json#Props-01": {
+            "scaleInDock": 3
+        },
+        "jsons/groundup.json#Salt": {
+            "scaleInDock": 1
+        },
+        "jsons/groundup.json#Tiles": {
+            "scaleInDock": 3
+        },
+        "jsons/groundup.json#graveTiles": {
+            "scaleInDock": 1
+        },
+        "jsons/groundup.tmj": {
+            "scale": 2,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 508.75,
+                "y": 367.75
+            }
+        },
+        "jsons/logo.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "/Users/romariokavin/Documents/grand-nouns-auto-private/frontend/public/sprites",
+    "map.height": 30,
+    "map.lastUsedFormat": "json",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 56,
+    "openFiles": [
+        "jsons/bgL2.json",
+        "Buildings.tsx",
+        "Props-01.tsx",
+        "Tiles.tsx",
+        "BackgroundProps.tsx",
+        "jsons/groundup.json",
+        "jsons/graveTiles.tsx"
+    ],
+    "project": "Main Project.tiled-project",
+    "recentFiles": [
+        "jsons/logo.tsx",
+        "Tiles.tsx",
+        "jsons/bgL2.json",
+        "Buildings.tsx",
+        "Props-01.tsx",
+        "BackgroundProps.tsx",
+        "jsons/graveTiles.tsx",
+        "jsons/groundup.json",
+        "jsons/1inch_color_black.tsx",
+        "jsons/Salt.tsx",
+        "jsons/Grass_background_2.tsx",
+        "jsons/Tiles.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
