@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef,useState } from 'react';
 import Phaser from 'phaser';
 import RetroConversationComponent from '@/components/Converstation';
 class GameScene extends Phaser.Scene {
@@ -12,13 +12,20 @@ class GameScene extends Phaser.Scene {
     pubLayer!: Phaser.Tilemaps.TilemapLayer;
     inchLayer!: Phaser.Tilemaps.TilemapLayer;
     bgL2Layer!: Phaser.Tilemaps.TilemapLayer;
+    bgL2Logo!: Phaser.Tilemaps.TilemapLayer;
     enterButton!: Phaser.GameObjects.Text;
+    exitButton!: Phaser.GameObjects.Text;
+
     enterGraveButton!: Phaser.GameObjects.Text;
     graveRails!: Phaser.Tilemaps.TilemapLayer;
     graveProps!: Phaser.Tilemaps.TilemapLayer;
     graveSalt!: Phaser.Tilemaps.TilemapLayer; 
     graveBg!: Phaser.Tilemaps.TilemapLayer;
+    isInPub: boolean = false;
+
     pubEntrance!: { x: number; y: number; width: number };
+    pubExit!: { x: number; y: number; width: number };
+
     graveEntrance!: { x: number; y: number; width: number };
   
     constructor() {
@@ -35,7 +42,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('Salt', '/sprites/Graveyard/Salt.png');
         this.load.image('Grass_background_2', '/sprites/Graveyard/Grass_background_2.png');
         this.load.image('pubinterior', '/sprites/pubInterior/pubinterior.png');
-        this.load.image('logo1', '/sprites/logo1.png');
+        this.load.image('logo4', '/sprites/logo4.png');
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
@@ -49,9 +56,10 @@ class GameScene extends Phaser.Scene {
         // Create bgL2 tilemap
         const bgL2Map = this.make.tilemap({ key: 'bgL2Map' });
         const backgroundPropsTileset = bgL2Map.addTilesetImage('BackgroundProps', 'BackgroundProps');
-        const logo1Tileset= bgL2Map.addTilesetImage('logo1', 'logo1'); 
+        const logo1Tileset= bgL2Map.addTilesetImage('logo4', 'logo4'); 
         this.bgL2Layer = bgL2Map.createLayer('bglayer', backgroundPropsTileset!)!;
-        this.bgL2Layer = bgL2Map.createLayer('logo', logo1Tileset!)!;
+        this.bgL2Logo = bgL2Map.createLayer('logo', logo1Tileset!)!;
+        this.bgL2Logo.setDepth(2);
         this.bgL2Layer.setDepth(1);
         this.bgL2Layer.setScrollFactor(0.5); // Parallax effect
     
@@ -129,13 +137,22 @@ class GameScene extends Phaser.Scene {
           backgroundColor: '#000000',
           padding: { x: 10, y: 5 },
         });
+        this.exitButton = this.add.text(0, 0, 'Exit', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
         this.enterButton.setInteractive();
         this.enterButton.on('pointerdown', this.enterPub, this);
         this.enterButton.setVisible(false);
         this.enterButton.setDepth(7);
     
-        this.graveEntrance = { x: 1100, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
-    
+        this.graveEntrance = { x: 1100, y: 400, width: 64 };
+        this.exitButton.setInteractive();
+        this.exitButton.on('pointerdown', this.enterPub, this);
+        this.exitButton.setVisible(false);
+        this.exitButton.setDepth(7);
+        this.pubExit = { x: 400, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
         // Create enter button (initially hidden)
         this.enterGraveButton = this.add.text(0, 0, 'Enter Grave', { 
           fontSize: '24px', 
@@ -190,9 +207,13 @@ class GameScene extends Phaser.Scene {
         }
     
         // Check if player is near pub entrance
+        if (!this.isInPub) {
         this.checkPubProximity();
-        this.checkGraveProximity();
-      }
+        this.checkGraveProximity();}
+        if(this.isInPub){
+          this.checkPubExitProximity();
+        }
+    }
 
   checkPubProximity() {
     const playerIsInFrontOfPub = 
@@ -208,6 +229,22 @@ class GameScene extends Phaser.Scene {
       );
     } else {
       this.enterButton.setVisible(false);
+    }
+  }
+  checkPubExitProximity() {
+    const playerIsInFrontOfPub = 
+      this.player.x >= this.pubEntrance.x &&
+      this.player.x <= this.pubEntrance.x + this.pubEntrance.width &&
+      Math.abs(this.player.y - this.pubEntrance.y) < 20; // Allow some vertical tolerance
+
+    if (playerIsInFrontOfPub) {
+      this.exitButton.setVisible(true);
+      this.exitButton.setPosition(
+        this.player.x,
+        this.player.y - 50
+      );
+    } else {
+      this.exitButton.setVisible(false);
     }
   }
   checkGraveProximity() {
@@ -227,6 +264,8 @@ class GameScene extends Phaser.Scene {
     }
   }
   enterPub() {
+    this.isInPub = true;
+    
     // Create new tilemap for pub interior
     const pubInteriorMap = this.make.tilemap({ key: 'pubInteriorMap' });
     const tilesetInterior = pubInteriorMap.addTilesetImage('pubInterior', 'pubinterior');
@@ -237,6 +276,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // Clear existing layers
+    this.bgL2Logo.destroy();
     this.groundLayer.destroy();
     this.propsLayer.destroy();
     this.pubLayer.destroy();
@@ -276,6 +316,16 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.groundLayer);
 
     console.log("Entered pub. Ground layer:", this.groundLayer);
+
+    // Emit an event to notify that we've entered the pub
+    this.events.emit('enteredPub');
+  }
+
+  exitPub() {
+    this.isInPub = false;
+    // Logic to exit the pub and return to the main scene
+    // This would involve recreating the main scene layers and resetting the player position
+    // You'll need to implement this based on your game's structure
   }
 }
 const GameComponent: React.FC = () => {

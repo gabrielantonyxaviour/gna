@@ -62,6 +62,9 @@
         "jsons/bgL2.json#Props-01": {
             "scaleInDock": 1
         },
+        "jsons/bgL2.json#logo1": {
+            "scaleInDock": 1
+        },
         "jsons/brush.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -77,7 +80,7 @@
             "scale": 0.99,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 376.26262626262627,
+                "x": 470.7070707070707,
                 "y": 437.37373737373736
             }
         },
@@ -118,7 +121,7 @@
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "/Users/romariokavin/Documents/grand-nouns-auto-private/frontend/public/sprites",
+    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/sprites",
     "map.height": 30,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
