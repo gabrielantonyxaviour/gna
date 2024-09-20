@@ -23,4 +23,21 @@ class GameScene extends Phaser.Scene {
     constructor() {
       super('GameScene');
     }
+    preload() {
+        this.load.image('background', '/sprites/Background/BaseColor.png');
+        this.load.image('Tiles', '/sprites/Assets/Tiles.png');
+        this.load.image('Props', '/sprites/Assets/Props-01.png');
+        this.load.image('Buildings', '/sprites/Assets/Buildings.png');
+        this.load.image('BackgroundProps', '/sprites/Background/BackgroundProps.png');
+        this.load.image('1inch', '/sprites/Social/1inch_color_black.png');
+        this.load.image('GraveTiles', '/sprites/Graveyard/graveTiles.png');
+        this.load.image('Salt', '/sprites/Graveyard/Salt.png');
+        this.load.image('Grass_background_2', '/sprites/Graveyard/Grass_background_2.png');
+        this.load.image('pubinterior', '/sprites/pubInterior/pubinterior.png');
+        this.load.image('logo1', '/sprites/logo1.png');
+        this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
+        this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
+        this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
+        
+      }
 }
