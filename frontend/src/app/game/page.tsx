@@ -33,6 +33,7 @@ class GameScene extends Phaser.Scene {
     talktoHelper!: Phaser.GameObjects.Text;
     talktoZombie!: Phaser.GameObjects.Text;
     enterCaveButton!: Phaser.GameObjects.Text;
+    baddie!: Phaser.Tilemaps.TilemapLayer;
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
@@ -63,6 +64,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('graveinterior', '/sprites/Graveyard/graveInterior.png');
         this.load.image('logo4', '/sprites/logo4.png');
         this.load.image('bouncer', '/nouns/bouncer.png');
+        this.load.image('baddie', '/nouns/baddie.png');
+
         this.load.image('satoshi', '/nouns/satoshi.png');
         this.load.image('villan1', '/nouns/villan1.png');
         this.load.image('helperguy', '/nouns/helperguy.png');
@@ -596,6 +599,7 @@ class GameScene extends Phaser.Scene {
     // Create new tilemap for pub interior
     const caveIntMap = this.make.tilemap({ key: 'caveInt' });
     const tilesetInterior = caveIntMap.addTilesetImage('caveInt', 'caveInt');
+    const baddie = caveIntMap.addTilesetImage('baddie', 'baddie');
 
     if (!tilesetInterior) {
       console.error("Failed to load pub interior tileset");
@@ -606,6 +610,12 @@ class GameScene extends Phaser.Scene {
     this.caveExt.destroy();
     this.groundLayer = caveIntMap.createLayer('ground', tilesetInterior)!;
     this.propsLayer = caveIntMap.createLayer('bg', tilesetInterior)!;
+    if (baddie) {
+      this.baddie = caveIntMap.createLayer('baddie', baddie)!;
+    } else {
+      console.error("Failed to load baddie tileset");
+    }
+    this.baddie.setDepth(2);
     this.groundLayer.setDepth(2);
     this.propsLayer.setDepth(1);    
     if (!this.groundLayer || !this.propsLayer) {
