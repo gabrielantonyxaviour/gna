@@ -16,7 +16,7 @@ export default function Modals({
     <>
       <Dialog
         open={option != 0}
-        onOpenChange={(op: any) => {
+        onOpenChange={(op) => {
           // if (op == false) setOption(0);
         }}
       >
