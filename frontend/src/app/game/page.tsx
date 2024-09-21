@@ -15,7 +15,6 @@ class GameScene extends Phaser.Scene {
     bgL2Logo!: Phaser.Tilemaps.TilemapLayer;
     enterButton!: Phaser.GameObjects.Text;
     exitButton!: Phaser.GameObjects.Text;
-
     enterGraveButton!: Phaser.GameObjects.Text;
     graveRails!: Phaser.Tilemaps.TilemapLayer;
     graveProps!: Phaser.Tilemaps.TilemapLayer;
@@ -44,13 +43,15 @@ class GameScene extends Phaser.Scene {
         this.load.image('Grass_background_2', '/sprites/Graveyard/Grass_background_2.png');
         this.load.image('pubinterior', '/sprites/pubInterior/pubinterior.png');
         this.load.image('graveinterior', '/sprites/Graveyard/graveInterior.png');
-
         this.load.image('logo4', '/sprites/logo4.png');
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
         this.load.tilemapTiledJSON('graveInteriorMap', '/sprites/jsons/graveInterior.json');
-
+        this.load.spritesheet('character', '/nouns/hero_sprite.png', {
+            frameWidth: 64, // Adjust this to match your sprite width
+            frameHeight: 128 // Adjust this to match your sprite height
+          });
         
       }
       create() {
@@ -97,15 +98,33 @@ class GameScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, groundMap.widthInPixels, groundMap.heightInPixels);
     
         // Player
-        this.player = this.physics.add.sprite(100, 200, 'player');
-        this.player.setCircle(16);
-        this.player.setTint(0x0000ff);
+        this.player = this.physics.add.sprite(100, 200, 'character');
         this.player.setCollideWorldBounds(true);
-    
+        this.player.body!.setOffset(0, -3);  // Adjust this value as needed
+        this.player.body!.setSize(80, 100, false);
         // Collision
         this.physics.add.collider(this.player, this.groundLayer);
     
         // Input
+        this.anims.create({
+            key: 'walk_right',
+            frames: this.anims.generateFrameNumbers('character', { start: 3, end: 5 }),
+            frameRate: 10,
+            repeat: -1
+          });
+      
+          this.anims.create({
+            key: 'walk_left',
+            frames: this.anims.generateFrameNumbers('character', { start: 6, end: 9 }),
+            frameRate: 10,
+            repeat: -1
+          });
+      
+          this.anims.create({
+            key: 'idle',
+            frames: [{ key: 'character', frame: 1 }],
+            frameRate: 20
+          });
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     
@@ -179,12 +198,16 @@ class GameScene extends Phaser.Scene {
       update() {
         // Player movement
         if (this.cursors.left.isDown) {
-          this.player.setVelocityX(-160);
-        } else if (this.cursors.right.isDown) {
-          this.player.setVelocityX(160);
-        } else {
-          this.player.setVelocityX(0);
-        }
+            this.player.setVelocityX(-160);
+            this.player.anims.play('walk_left', true);
+          } else if (this.cursors.right.isDown) {
+            this.player.setVelocityX(160);
+            this.player.anims.play('walk_right', true);
+          } else {
+            this.player.setVelocityX(0);
+            this.player.anims.play('idle', true);
+          }
+      
     
         // Jumping
         if (this.cursors.up.isDown && (this.player.body as Phaser.Physics.Arcade.Body).onFloor()) {

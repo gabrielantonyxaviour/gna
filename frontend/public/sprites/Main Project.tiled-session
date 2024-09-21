@@ -73,6 +73,17 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "jsons/graveInterior.json": {
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 342,
+                "y": 291
+            }
+        },
+        "jsons/graveInterior.json#graveInterior": {
+            "scaleInDock": 1
+        },
         "jsons/graveInterior.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -140,7 +151,7 @@
             "scaleInDock": 1
         }
     },
-    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/sprites/Graveyard",
+    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/nouns",
     "map.height": 30,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
