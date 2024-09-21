@@ -18,14 +18,14 @@ export default function Page() {
   const { setBalances, setPrices } = useEnvironmentContext();
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
-    if (status === "connected") {
+    if (status === "connected" && address != undefined) {
       setLoading(true);
       fetchBalanceAndPrice(address, setBalances, setPrices).then(() => {
         setLoading(false);
       });
     }
-  }, [status]);
-  return status != "connected" || loading ? (
+  }, [status, address]);
+  return status != "connected" || address == undefined || loading ? (
     <div className="flex justify-center space-x-4">
       {loading ? <Spinner /> : <ConnectButton />}
     </div>

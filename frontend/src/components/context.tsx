@@ -6,7 +6,7 @@ import React, {
   ReactNode,
   useMemo,
 } from "react";
-import { FusionSDK, NetworkEnum } from "@1inch/fusion-sdk";
+import { FusionSDK, NetworkEnum, OrderInfo } from "@1inch/fusion-sdk";
 interface GrandNounsAutoContextType {
   balances: BalanceResponse[];
   setBalances: React.Dispatch<React.SetStateAction<BalanceResponse[]>>;
@@ -16,6 +16,8 @@ interface GrandNounsAutoContextType {
   setGasData: React.Dispatch<React.SetStateAction<GasData>>;
   ethereumSdk: FusionSDK;
   gnosisSdk: FusionSDK;
+  latestFusionOrder: OrderInfo | null;
+  setLatestFusionOrder: React.Dispatch<React.SetStateAction<OrderInfo | null>>;
 }
 
 const GrandNounsAutoContext = createContext<
@@ -58,6 +60,9 @@ export const GrandNounsAutoProvider = ({
       maxFeePerGas: "0",
     },
   });
+  const [latestFusionOrder, setLatestFusionOrder] = useState<OrderInfo | null>(
+    null
+  );
   const ethereumSdk = useMemo(() => {
     return new FusionSDK({
       url: "https://api.1inch.dev/fusion",
@@ -83,6 +88,8 @@ export const GrandNounsAutoProvider = ({
         setGasData,
         ethereumSdk,
         gnosisSdk,
+        latestFusionOrder,
+        setLatestFusionOrder,
       }}
     >
       {children}
