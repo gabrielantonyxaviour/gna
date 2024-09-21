@@ -31,7 +31,7 @@
     "@supabase/supabase-js": "^2.44.2",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-table": "^8.20.1",
-    "@worldcoin/idkit": "^1.2.0",
+    "@worldcoin/idkit": "^1.3.0",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
