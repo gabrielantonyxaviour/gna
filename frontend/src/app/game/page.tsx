@@ -423,7 +423,7 @@ class GameScene extends Phaser.Scene {
             this.player.x,
             this.player.y - 50
           );
-          this.npc2 = 'Helper';
+          this.npc2 = 'helperguy';
         } else {
           this.talktoHelper.setVisible(false);
             this.npc2 = '';
@@ -855,7 +855,7 @@ const GameComponent: React.FC = () => {
       <div className='flex justify-center items-center'>
         <div className='flex flex-col justify-center items-center w-[640px]'>
           <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
-          <RetroConversationComponent/>
+          <RetroConversationComponent npc2={gameState.npc2}/>
           <div>Mission: {gameState.mission}</div>
           <div>NPC2: {gameState.npc2}</div>
         </div>
