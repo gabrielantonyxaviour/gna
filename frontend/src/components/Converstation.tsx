@@ -71,7 +71,7 @@ const RetroConversationComponent = () => {
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto mt-1 bg-[#020817] border-2 border-gray-600 text-white rounded-sm">
       <div className="flex w-full mb-4 space-x-4">
         <div className={`character flex-shrink-0 ${currentSpeaker === 'npc1' ? 'speaking' : ''}`}>
-          <img src="/nouns/helperguy.png" alt="NPC 1" className="rounded-lg" />
+          <img src="/nouns/hero.png" alt="NPC 1" className="rounded-lg" />
         </div>
         <div 
           onClick={handleDialogueClick}

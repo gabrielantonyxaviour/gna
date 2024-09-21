@@ -22,11 +22,15 @@ class GameScene extends Phaser.Scene {
     graveBg!: Phaser.Tilemaps.TilemapLayer;
     bouncer1!: Phaser.Tilemaps.TilemapLayer;
     bouncer2!: Phaser.Tilemaps.TilemapLayer;
+    satoshi!: Phaser.Tilemaps.TilemapLayer;
     talktoBouncer!: Phaser.GameObjects.Text;
+    talktoSatoshi!: Phaser.GameObjects.Text;
+    wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
     mission:number = 1;
     pubEntrance!: { x: number; y: number; width: number };
+    satoshiEntrance!: { x: number; y: number; width: number };
     pubExit!: { x: number; y: number; width: number };
     graveEntrance!: { x: number; y: number; width: number };
   
@@ -47,6 +51,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('graveinterior', '/sprites/Graveyard/graveInterior.png');
         this.load.image('logo4', '/sprites/logo4.png');
         this.load.image('bouncer', '/nouns/bouncer.png');
+        this.load.image('satoshi', '/nouns/satoshi.png');
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
@@ -82,7 +87,8 @@ class GameScene extends Phaser.Scene {
         const graveTileset = groundMap.addTilesetImage('graveTiles', 'GraveTiles');
         const graveSalt = groundMap.addTilesetImage('Salt', 'Salt'); 
         const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2');
-        const bouncer= groundMap.addTilesetImage('bouncer', 'bouncer'); 
+        const bouncer= groundMap.addTilesetImage('bouncer', 'bouncer');
+        const satoshi= groundMap.addTilesetImage('satoshi', 'satoshi'); 
         const pubTileset= groundMap.addTilesetImage('pubinterior', 'pubinterior'); 
         this.groundLayer = groundMap.createLayer('Ground', tilesTileset!)!;
         this.propsLayer = groundMap.createLayer('Props', propsTileset!)!;
@@ -91,6 +97,7 @@ class GameScene extends Phaser.Scene {
         this.graveSalt = groundMap.createLayer('Grave Salt', graveSalt!)!;
         this.graveProps = groundMap.createLayer('Grave Props', graveTileset!)!;
         this.graveBg = groundMap.createLayer('GraveBG', graveBg!)!;
+        this.satoshi = groundMap.createLayer('Satoshi', satoshi!)!;
         this.bouncer1 = groundMap.createLayer('Bouncer1', bouncer!)!;
         this.bouncer2 = groundMap.createLayer('Bouncer2', bouncer!)!;
         this.bouncer2.setVisible(false);
@@ -143,6 +150,7 @@ class GameScene extends Phaser.Scene {
     
         // Depth
         background.setDepth(0);
+        this.satoshi.setDepth(2);
         this.bgL2Layer.setDepth(1);
         this.groundLayer.setDepth(2);
         this.propsLayer.setDepth(3);
@@ -152,8 +160,8 @@ class GameScene extends Phaser.Scene {
         this.graveProps.setDepth(5);
         this.graveBg.setDepth(1);
         this.graveRails.setDepth(6);
-        this.bouncer1.setDepth(7);
-        this.bouncer2.setDepth(7);
+        this.bouncer1.setDepth(5);
+        this.bouncer2.setDepth(5);
         this.player.setDepth(7);
         
         // Player properties
@@ -162,7 +170,7 @@ class GameScene extends Phaser.Scene {
     
         // Set pub entrance coordinates (adjust these to match your map)
         this.pubEntrance = { x: 400, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
-    
+        this.satoshiEntrance= { x: 150, y: 380, width: 64 };
         // Create enter button (initially hidden)
         this.enterButton = this.add.text(0, 0, 'Enter Pub', { 
           fontSize: '24px', 
@@ -170,6 +178,11 @@ class GameScene extends Phaser.Scene {
           padding: { x: 10, y: 5 },
         });
         this.exitButton = this.add.text(0, 0, 'Exit', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
+          this.talktoSatoshi = this.add.text(0, 0, 'Interact', { 
             fontSize: '24px', 
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
@@ -183,6 +196,10 @@ class GameScene extends Phaser.Scene {
         this.talktoBouncer.on('pointerdown', this.enterPub, this);
         this.talktoBouncer.setVisible(false);
         this.talktoBouncer.setDepth(7);
+        this.talktoSatoshi.setInteractive();
+        this.talktoSatoshi.on('pointerdown', this.enterPub, this);
+        this.talktoSatoshi.setVisible(false);
+        this.talktoSatoshi.setDepth(7);
         this.enterButton.setInteractive();
         this.enterButton.on('pointerdown', this.enterPub, this);
         this.enterButton.setVisible(false);
@@ -224,7 +241,7 @@ class GameScene extends Phaser.Scene {
             this.player.setVelocityX(0);
             this.player.anims.play('idle', true);
           }
-          if(this.mission==2){
+          if(this.mission==2&&!this.isInGrave&&!this.isInPub){
             this.bouncer2.setVisible(true);
             this.bouncer1.setVisible(false);
           }
@@ -257,6 +274,16 @@ class GameScene extends Phaser.Scene {
         // Check if player is near pub entrance
         if(this.mission==1){
             this.checkBouncerProximity();
+            
+        }
+        if(this.wallet==false){
+            this.checkSatoshiProximity();
+            this.satoshi.setCollisionByExclusion([-1], true);
+        }
+        else{
+            this.satoshi.setCollisionByExclusion([-1], false);
+        }
+        if (!this.isInPub&&!this.isInGrave) {
         }
         if (!this.isInPub&&this.mission!=1) {
         this.checkPubProximity();
@@ -265,7 +292,22 @@ class GameScene extends Phaser.Scene {
           this.checkPubExitProximity();
         }
     }
-
+    checkSatoshiProximity() {
+        const playerIsInFrontOfSatoshi = 
+          this.player.x >= this.satoshiEntrance.x &&
+          this.player.x <= this.satoshiEntrance.x + this.satoshiEntrance.width &&
+          Math.abs(this.player.y - this.satoshiEntrance.y) < 20; // Allow some vertical tolerance
+    
+        if (playerIsInFrontOfSatoshi) {
+          this.talktoSatoshi.setVisible(true);
+          this.talktoSatoshi.setPosition(
+            this.player.x,
+            this.player.y - 50
+          );
+        } else {
+          this.talktoSatoshi.setVisible(false);
+        }
+      }
   checkPubProximity() {
     const playerIsInFrontOfPub = 
       this.player.x >= this.pubEntrance.x &&
@@ -348,6 +390,8 @@ class GameScene extends Phaser.Scene {
     this.propsLayer.destroy();
     this.pubLayer.destroy();
     this.inchLayer.destroy();
+    this.bouncer1.destroy();
+    this.bouncer2.destroy();
     // this.bgL2Layer.destroy();
     this.graveRails.destroy();
     this.graveSalt.destroy();
@@ -423,12 +467,17 @@ class GameScene extends Phaser.Scene {
     const graveTileset = groundMap.addTilesetImage('graveTiles', 'GraveTiles');
     const graveSalt = groundMap.addTilesetImage('Salt', 'Salt');
     const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2');
+    const bouncer= groundMap.addTilesetImage('bouncer', 'bouncer'); 
+
   
     if (!tilesTileset || !propsTileset || !buildingsTileset || !inchTileset || !graveTileset || !graveSalt || !graveBg) {
       console.error("Failed to load one or more tilesets");
       return;
     }
     // Recreate layers
+    this.bouncer1 = groundMap.createLayer('Bouncer1', bouncer!)!;
+    this.bouncer2 = groundMap.createLayer('Bouncer2', bouncer!)!;
+    this.bouncer2.setVisible(false);
     this.groundLayer = groundMap.createLayer('Ground', tilesTileset)!;
     this.propsLayer = groundMap.createLayer('Props', propsTileset)!;
     this.pubLayer = groundMap.createLayer('Pub', buildingsTileset)!;
@@ -458,6 +507,8 @@ class GameScene extends Phaser.Scene {
     if (this.graveSalt) this.graveSalt.setDepth(5);
     if (this.graveProps) this.graveProps.setDepth(5);
     if (this.graveBg) this.graveBg.setDepth(1);
+    if(this.bouncer1) this.bouncer1.setDepth(5);
+    if(this.bouncer2) this.bouncer2.setDepth(5);
     if (this.graveRails) this.graveRails.setDepth(6);
     this.player.setDepth(7);
   
@@ -501,6 +552,8 @@ class GameScene extends Phaser.Scene {
     this.propsLayer.destroy();
     this.pubLayer.destroy();
     this.inchLayer.destroy();
+    this.bouncer1.destroy();
+    this.bouncer2.destroy();
     // this.bgL2Layer.destroy();
     this.graveRails.destroy();
     this.graveSalt.destroy();
