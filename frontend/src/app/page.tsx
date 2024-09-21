@@ -10,6 +10,7 @@ import { useEnvironmentContext } from "@/components/context";
 import { fetchBalanceAndPrice } from "@/lib/one-inch/fetch-balance-and-price";
 import { gnosis } from "viem/chains";
 import Spinner from "@/components/ui/loading";
+import WorldcoinComponent from "@/components/WorldcoinComponent";
 
 export default function Page() {
   const { address, status } = useAccount();
@@ -32,7 +33,7 @@ export default function Page() {
   ) : (
     <>
       <Modals option={option} setOption={setOption} />
-
+      <WorldcoinComponent />
       <div className="flex justify-center space-x-4">
         <Button
           variant="secondary"
