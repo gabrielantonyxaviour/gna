@@ -19,6 +19,7 @@ import {
   createPublicClient,
   createWalletClient,
   custom,
+  erc20Abi,
   formatEther,
   http,
   parseEther,
@@ -35,6 +36,7 @@ import { NetworkEnum } from "@1inch/fusion-sdk";
 import { watchAsset } from "viem/actions";
 import Spinner from "@/components/ui/loading";
 import LoadingDots from "@/components/ui/loading-dots";
+import { init } from "next/dist/compiled/webpack/webpack";
 
 interface SwapProps {
   fromAmount: string;
@@ -76,7 +78,9 @@ export default function Swap({
   const [accordionOpen, setAccordionOpen] = useState<boolean>(false);
   const [permitSignature, setPermitSignature] = useState<string>("");
   const [wrapTxHash, setWrapTxHash] = useState<string>("");
-  const [wrapPending, setWrapPending] = useState<boolean>(false);
+  const [approveTxHash, setApproveTxHash] = useState<string>("");
+  const [pending, setPending] = useState<boolean>(false);
+  const [initialFromToken, setInitialFromToken] = useState<string>("");
   useEffect(() => {
     if (prices.length == 2)
       setToAmount(
@@ -89,6 +93,7 @@ export default function Swap({
           toChainId: gnosis.id,
         })
       );
+    if (txStatus == 0) setInitialFromToken(fromToken);
   }, [prices, fromAmount, fromToken, toToken]);
   return chainId == undefined ? (
     <div></div>
@@ -245,11 +250,11 @@ export default function Swap({
             </CardContent>
           </Card>
         </>
-      ) : txStatus == 3 ? (
+      ) : (txStatus == 3 && initialFromToken != "xdai") || txStatus == 5 ? (
         <div className="flex flex-col h-[250px]">
           <div className="flex justify-between space-x-4 pb-12">
             <div></div>
-            <p className="font-semibold">Permit Swap</p>
+            <p className="font-semibold">Swap Tokens</p>
             <X
               className="cursor-pointer h-6 w-6"
               onClick={() => setTxStatus(0)}
@@ -260,7 +265,62 @@ export default function Swap({
             Please, sign transaction in your wallet.
           </p>
         </div>
-      ) : txStatus == 4 ? (
+      ) : (txStatus == 3 && initialFromToken == "xdai") ||
+        (txStatus == 1 && initialFromToken != "xdai") ? (
+        <div className="flex flex-col h-[250px]">
+          <div className="flex justify-between space-x-4 pb-12">
+            <div></div>
+            <p className="font-semibold">Approve Tokens</p>
+            <X
+              className="cursor-pointer h-6 w-6"
+              onClick={() => setTxStatus(0)}
+            />
+          </div>
+          <OneInchSpinner />
+          <p className="font-medium text-sm text-muted-foreground text-center py-4">
+            Please, sign transaction in your wallet.
+          </p>
+        </div>
+      ) : (txStatus == 2 && initialFromToken != "xdai") ||
+        (txStatus == 4 && initialFromToken == "xdai") ? (
+        <div className="flex flex-col h-[250px]">
+          <div className="flex justify-between space-x-4 pb-8">
+            <div></div>
+            <p className="font-semibold">
+              {pending ? "Approving Tokens" : "Tokens Approved"}
+            </p>
+            <X
+              className="cursor-pointer h-6 w-6"
+              onClick={() => setTxStatus(0)}
+            />
+          </div>
+          <TxSubmitted />
+          {pending ? (
+            <div className="pb-6 flex justify-center items-end space-x-4">
+              <p className="font-medium text-sm text-muted-foreground text-center mb-1">
+                Waiting for confirmation
+              </p>
+              <LoadingDots />
+            </div>
+          ) : (
+            <p className="font-medium text-sm text-muted-foreground text-center pb-6">
+              Token Approved Successfully.{" "}
+              <span
+                className="underline cursor-pointer"
+                onClick={() => {
+                  window.open(
+                    `https://gnosisscan.io/tx/${approveTxHash}`,
+                    "_blank"
+                  );
+                }}
+              >
+                View Tx
+              </span>
+            </p>
+          )}
+        </div>
+      ) : (txStatus == 4 && initialFromToken == "xdai") ||
+        (txStatus == 6 && initialFromToken != "xdai") ? (
         <div className="flex flex-col h-[250px]">
           <div className="flex justify-between space-x-4 pb-8">
             <div></div>
@@ -274,11 +334,8 @@ export default function Swap({
           <p className="font-medium text-sm text-muted-foreground text-center pb-6">
             Waiting for Resolvers to confirm the swap
           </p>
-          <p className="text-xs">
-            {JSON.stringify(latestFusionOrder, null, 2)}
-          </p>
         </div>
-      ) : txStatus == 1 ? (
+      ) : txStatus == 1 && initialFromToken == "xdai" ? (
         <div className="flex flex-col h-[250px]">
           <div className="flex justify-between space-x-4 pb-12">
             <div></div>
@@ -294,18 +351,21 @@ export default function Swap({
           </p>
         </div>
       ) : (
-        txStatus == 2 && (
+        txStatus == 2 &&
+        initialFromToken == "xdai" && (
           <div className="flex flex-col h-[250px]">
             <div className="flex justify-between space-x-4 pb-8">
               <div></div>
-              <p className="font-semibold">xDAI Wrapped</p>
+              <p className="font-semibold">
+                {pending ? "Wrapping xDAI" : "xDAI Wrapped"}
+              </p>
               <X
                 className="cursor-pointer h-6 w-6"
                 onClick={() => setTxStatus(0)}
               />
             </div>
             <TxSubmitted />
-            {wrapPending ? (
+            {pending ? (
               <div className="pb-6 flex justify-center items-end space-x-4">
                 <p className="font-medium text-sm text-muted-foreground text-center mb-1">
                   Waiting for confirmation
@@ -336,17 +396,17 @@ export default function Swap({
         variant={"default"}
         className="w-full font-bold"
         onClick={async () => {
-          if (txStatus % 2 == 1 || txStatus == 4) setTxStatus(0);
-          else if (fromToken == "xdai") {
-            const walletClient = createWalletClient({
-              chain: gnosis,
-              transport: custom(window.ethereum),
-            });
-            const publicClient = createPublicClient({
-              chain: gnosis,
-              transport: http(),
-            });
+          const walletClient = createWalletClient({
+            chain: gnosis,
+            transport: custom(window.ethereum),
+          });
+          const publicClient = createPublicClient({
+            chain: gnosis,
+            transport: http(),
+          });
 
+          if (txStatus % 2 == 1 || txStatus == 6) setTxStatus(0);
+          else if (txStatus == 0 && fromToken == "xdai") {
             setTxStatus(1);
             const { request } = await publicClient.simulateContract({
               address: supportedchains[gnosis.id].tokens["wxdai"],
@@ -359,61 +419,54 @@ export default function Swap({
             const hash = await walletClient.writeContract(request);
 
             setWrapTxHash(hash);
-            setWrapPending(true);
+            setPending(true);
             setTxStatus(2);
-            const transaction = await publicClient.waitForTransactionReceipt({
+            await publicClient.waitForTransactionReceipt({
               hash,
             });
-            setWrapPending(false);
+            setPending(false);
             setFromToken("wxdai");
+          } else if (
+            (txStatus == 2 && initialFromToken == "xdai") ||
+            (txStatus == 0 && fromToken != "xdai")
+          ) {
+            setTxStatus(txStatus + 1);
+            const { request } = await publicClient.simulateContract({
+              address: supportedchains[gnosis.id].tokens[fromToken],
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [
+                supportedchains[gnosis.id].oneInch as `0x${string}`,
+                parseEther(fromAmount),
+              ],
+              account: address,
+            });
+            const hash = await walletClient.writeContract(request);
+
+            setApproveTxHash(hash);
+            setPending(true);
+            setTxStatus(txStatus + 2);
+            await publicClient.waitForTransactionReceipt({
+              hash,
+            });
+            setPending(false);
           } else {
-            const walletClient = createWalletClient({
-              chain: gnosis,
-              transport: custom(window.ethereum),
-            });
-            setTxStatus(3);
-            const { signature } = await signPermit({
-              walletClient,
-              chainId: gnosis.id,
-              maker: address || "0x",
-              makerAsset: supportedchains[gnosis.id].tokens[fromToken],
-              takerAsset: supportedchains[gnosis.id].tokens[toToken],
-              makingAmount: parseEther(fromAmount).toString(),
-              takingAmount: parseEther(toAmount).toString(),
-              receiver: zeroAddress,
-            });
-            setPermitSignature(signature);
-            // const quote = await gnosisSdk.getQuote({
-            //   fromTokenAddress: supportedchains[gnosis.id].tokens[fromToken],
-            //   toTokenAddress: supportedchains[gnosis.id].tokens[toToken],
-            //   amount: parseEther(fromAmount).toString(),
-            //   walletAddress: address,
-            //   permit: signature,
-            // takingFeeBps?: number;
-            // source?: string;
-            // isPermit2?: boolean;
-            // });
-            // const fusionOrder = quote.createFusionOrder({
-            //   network: NetworkEnum.GNOSIS,
-            // });
+            setPending(true);
+            setTxStatus(txStatus + 1);
             const latest = await gnosisSdk.placeOrder({
               fromTokenAddress: supportedchains[gnosis.id].tokens[fromToken],
               toTokenAddress: supportedchains[gnosis.id].tokens[toToken],
               amount: parseEther(fromAmount).toString(),
               walletAddress: address as `0x${string}`,
-              permit: signature,
-              isPermit2: true,
-              // fee: {
-              //   takingFeeBps: 100,
-              //   takingFeeReceiver: zeroAddress,
-              // },
             });
+            console.log(latest);
+            setPending(false);
             setLatestFusionOrder(latest);
-            setTxStatus(4);
+            setTxStatus(txStatus + 2);
           }
         }}
         disabled={
-          wrapPending ||
+          pending ||
           parseFloat(fromAmount) == 0 ||
           fromAmount == "" ||
           parseFloat(fromAmount) >
@@ -422,9 +475,13 @@ export default function Swap({
             )
         }
       >
-        {txStatus % 2 == 1
+        {txStatus % 2 == 1 || pending
           ? "Cancel"
-          : txStatus == 4
+          : (txStatus == 4 && initialFromToken == "xdai") ||
+            (txStatus == 2 && initialFromToken != "xdai")
+          ? "Swap"
+          : (txStatus == 6 && initialFromToken == "xdai") ||
+            (txStatus == 4 && initialFromToken != "xdai")
           ? "Done"
           : parseFloat(fromAmount) == 0 || fromAmount == ""
           ? "Enter Amount"
@@ -433,7 +490,7 @@ export default function Swap({
           ? "Insufficient Funds"
           : fromToken == "xdai"
           ? "Wrap xDAI"
-          : "Swap"}
+          : "Approve Tokens"}
       </Button>
     </div>
   );
