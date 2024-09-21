@@ -454,6 +454,7 @@ class GameScene extends Phaser.Scene {
     // Destroy pub layers
     if (this.groundLayer) this.groundLayer.destroy();
     if (this.propsLayer) this.propsLayer.destroy();
+    if(this.villain1) this.villain1.destroy();
   
     // Recreate main scene layers
     const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
