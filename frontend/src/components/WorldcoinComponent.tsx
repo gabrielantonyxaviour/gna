@@ -22,11 +22,7 @@ const unpack = (
 ] => {
   return decodeAbiParameters([{ type: "uint256[8]" }], proof)[0];
 };
-export default function WorldcoinProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function WorldcoinComponent() {
   const { address } = useAccount();
   const { setWorldcoinData } = useEnvironmentContext();
   return (
@@ -47,7 +43,9 @@ export default function WorldcoinProvider({
       {({ open }) => (
         // This is the button that will open the IDKit modal
         <>
-          <Button variant={"secondary"}>Prove you are a Human</Button>
+          <Button variant={"secondary"} onClick={open}>
+            Prove you are a Human
+          </Button>
           <p>
             Note: The in game milestones/progress is attested to your proof of
             Humanity. Humanness.
