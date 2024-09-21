@@ -51,7 +51,7 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 236,
-                "y": 249
+                "y": 97
             }
         },
         "jsons/bgL2.json#1inch_color_black": {
@@ -73,6 +73,17 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "jsons/graveInterior.json": {
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 342,
+                "y": 291
+            }
+        },
+        "jsons/graveInterior.json#graveInterior": {
+            "scaleInDock": 1
+        },
         "jsons/graveInterior.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -88,8 +99,8 @@
             "scale": 0.99,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 470.7070707070707,
-                "y": 437.37373737373736
+                "x": 618.1818181818182,
+                "y": 198.98989898989902
             }
         },
         "jsons/groundup.json#1inch_color_black": {
@@ -113,6 +124,9 @@
         "jsons/groundup.json#Tiles": {
             "scaleInDock": 3
         },
+        "jsons/groundup.json#bouncer": {
+            "scaleInDock": 1
+        },
         "jsons/groundup.json#graveTiles": {
             "scaleInDock": 1
         },
@@ -128,12 +142,16 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "jsons/logo4.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "jsons/pubinterior.json": {
-            "scale": 0.8927455357142857,
+            "scale": 0.89,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 448.0560070008751,
-                "y": 239.7099637454682
+                "x": 448.314606741573,
+                "y": 239.3258426966292
             }
         },
         "jsons/pubinterior.json#pubInterior": {
@@ -145,7 +163,7 @@
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 40,
+    "map.width": 58,
     "openFiles": [
         "jsons/bgL2.json",
         "Buildings.tsx",
@@ -157,18 +175,18 @@
     ],
     "project": "Main Project.tiled-project",
     "recentFiles": [
-        "jsons/graveInterior.tsx",
-        "jsons/logo.tsx",
-        "Tiles.tsx",
-        "jsons/bgL2.json",
-        "Buildings.tsx",
         "Props-01.tsx",
+        "Tiles.tsx",
         "BackgroundProps.tsx",
         "jsons/graveTiles.tsx",
+        "jsons/logo4.tsx",
+        "jsons/graveInterior.tsx",
+        "jsons/logo.tsx",
+        "jsons/bgL2.json",
+        "Buildings.tsx",
         "jsons/groundup.json",
         "jsons/1inch_color_black.tsx",
-        "jsons/Salt.tsx",
-        "jsons/Grass_background_2.tsx"
+        "jsons/Salt.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

@@ -11,9 +11,9 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
   return (
     <>
       <div className="h-screen flex">
-        <div className="px-8 w-full flex flex-col items-center mt-4">
+        <div className="px-8 w-full flex flex-col items-center mt-2">
           <div className="flex w-full justify-between">
-            <Image src={"/logo.png"} height={50} width={50} alt="Logo" />
+            <Image src={"/logo.png"} height={200} width={200} alt="Logo" />
             <div className="flex items-center">
               <ConnectButton />
             </div>
