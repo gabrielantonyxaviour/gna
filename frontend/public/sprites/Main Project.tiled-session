@@ -83,10 +83,10 @@
         },
         "jsons/graveInterior.json": {
             "scale": 1,
-            "selectedLayer": 2,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 565,
-                "y": 323
+                "x": 334,
+                "y": 308
             }
         },
         "jsons/graveInterior.json#caveExt": {

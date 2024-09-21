@@ -29,10 +29,12 @@ class GameScene extends Phaser.Scene {
     villain1!: Phaser.Tilemaps.TilemapLayer;
     talktoBouncer!: Phaser.GameObjects.Text;
     talktoSatoshi!: Phaser.GameObjects.Text;
+    talktoHelper!: Phaser.GameObjects.Text;
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
     mission:number = 2;
+    helperEntrance!: { x: number; y: number; width: number };
     pubEntrance!: { x: number; y: number; width: number };
     satoshiEntrance!: { x: number; y: number; width: number };
     pubExit!: { x: number; y: number; width: number };
@@ -192,6 +194,11 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
           });
+          this.talktoHelper = this.add.text(0, 0, 'Interact', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
           this.talktoSatoshi = this.add.text(0, 0, 'Interact', { 
             fontSize: '24px', 
             backgroundColor: '#000000',
@@ -202,6 +209,10 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
           });
+          this.talktoHelper.setInteractive();
+            this.talktoHelper.on('pointerdown', this.enterPub, this);
+            this.talktoHelper.setVisible(false);
+            this.talktoHelper.setDepth(7);
           this.talktoBouncer.setInteractive();
         this.talktoBouncer.on('pointerdown', this.enterPub, this);
         this.talktoBouncer.setVisible(false);
@@ -214,7 +225,8 @@ class GameScene extends Phaser.Scene {
         this.enterButton.on('pointerdown', this.enterPub, this);
         this.enterButton.setVisible(false);
         this.enterButton.setDepth(7);
-    
+        this.helperEntrance = { x: 100, y: 400, width: 64 };
+          
         this.graveEntrance = { x: 1100, y: 400, width: 64 };
         this.exitButton.setInteractive();
         this.exitButton.on('pointerdown', this.exitPub, this);
@@ -291,6 +303,9 @@ class GameScene extends Phaser.Scene {
         }
         if (!this.isInPub&&!this.isInGrave) {
         }
+        if(this.isInPub){
+            this.checkHelperProximity();
+        }
         if (!this.isInPub&&this.mission!=1) {
         this.checkPubProximity();
         this.checkGraveProximity();}
@@ -298,6 +313,22 @@ class GameScene extends Phaser.Scene {
           this.checkPubExitProximity();
         }
     }
+    checkHelperProximity() {
+        const playerIsInFrontOfHelper = 
+          this.player.x >= this.helperEntrance.x &&
+          this.player.x <= this.helperEntrance.x + this.helperEntrance.width &&
+          Math.abs(this.player.y - this.helperEntrance.y) < 20; // Allow some vertical tolerance
+    
+        if (playerIsInFrontOfHelper) {
+          this.talktoHelper.setVisible(true);
+          this.talktoHelper.setPosition(
+            this.player.x,
+            this.player.y - 50
+          );
+        } else {
+          this.talktoHelper.setVisible(false);
+        }
+      }
     checkSatoshiProximity() {
         const playerIsInFrontOfSatoshi = 
           this.player.x >= this.satoshiEntrance.x &&
