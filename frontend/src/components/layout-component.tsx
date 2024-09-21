@@ -11,8 +11,8 @@ interface LayoutComponentProps {
 }
 
 export default function LayoutComponent({ children }: LayoutComponentProps) {
-  const {worldcoinData} = useEnvironmentContext()
-  const {address, status}=useAccount()
+  const { worldcoinData } = useEnvironmentContext();
+  const { address, status } = useAccount();
   return (
     <>
       <div className="h-screen flex">
@@ -20,11 +20,17 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
           <div className="flex w-full justify-between">
             <Image src={"/logo.png"} height={200} width={200} alt="Logo" />
             <div className="flex items-center">
-            <DynamicWidget />
+              <DynamicWidget />
             </div>
           </div>
           <div className="h-full w-full flex flex-col justify-center items-center">
-            {worldcoinData==null?<WorldcoinComponent/>:address==undefined||status!='connected'?<DynamicWidget/>: children}
+            {worldcoinData == null && false ? (
+              <WorldcoinComponent />
+            ) : (address == undefined || status != "connected") && false ? (
+              <DynamicWidget />
+            ) : (
+              children
+            )}
           </div>
         </div>
       </div>
