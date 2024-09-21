@@ -1,4 +1,9 @@
-import { BalanceResponse, GasData, PriceResponse } from "@/lib/type";
+import {
+  BalanceResponse,
+  GasData,
+  PriceResponse,
+  WorldcoinData,
+} from "@/lib/type";
 import React, {
   createContext,
   useContext,
@@ -18,6 +23,8 @@ interface GrandNounsAutoContextType {
   gnosisSdk: FusionSDK;
   latestFusionOrder: OrderInfo | null;
   setLatestFusionOrder: React.Dispatch<React.SetStateAction<OrderInfo | null>>;
+  worldcoinData: WorldcoinData | null;
+  setWorldcoinData: React.Dispatch<React.SetStateAction<WorldcoinData | null>>;
 }
 
 const GrandNounsAutoContext = createContext<
@@ -41,6 +48,9 @@ export const GrandNounsAutoProvider = ({
 }) => {
   const [balances, setBalances] = useState<BalanceResponse[]>([]);
   const [prices, setPrices] = useState<PriceResponse[]>([]);
+  const [worldcoinData, setWorldcoinData] = useState<WorldcoinData | null>(
+    null
+  );
   const [gasData, setGasData] = useState<GasData>({
     baseFee: "0",
     low: {
@@ -90,6 +100,8 @@ export const GrandNounsAutoProvider = ({
         gnosisSdk,
         latestFusionOrder,
         setLatestFusionOrder,
+        worldcoinData,
+        setWorldcoinData,
       }}
     >
       {children}

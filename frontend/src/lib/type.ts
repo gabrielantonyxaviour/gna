@@ -1,5 +1,20 @@
 export type Address = `0x${string}`;
 
+export type WorldcoinData = {
+  merkleRoot: string;
+  proof: readonly [
+    bigint,
+    bigint,
+    bigint,
+    bigint,
+    bigint,
+    bigint,
+    bigint,
+    bigint
+  ];
+  nullifierHash: string;
+};
+
 export type BalanceResponse = {
   chain: number;
   data: Record<string, string>;
