@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { DynamicContextProvider, DynamicWidget } from '@dynamic-labs/sdk-react-core';
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import { gnosisChiado } from "viem/chains";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
@@ -30,7 +31,7 @@ export default function RootLayout({
 
     <DynamicContextProvider
     settings={{
-      environmentId: 'c088f783-aa2f-4f36-a6ee-110c9c85588a',
+      environmentId: '782db654-b43d-4a02-9aed-e53195f48034',
       walletConnectors: [ EthereumWalletConnectors ],
     }}>
     <WagmiProvider config={config}>

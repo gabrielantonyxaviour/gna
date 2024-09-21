@@ -3,6 +3,9 @@ import { useEffect, useRef,useState } from 'react';
 import Phaser from 'phaser';
 import RetroConversationComponent from '@/components/Converstation';
 import Modals from '@/components/modals';
+import { fetchBalanceAndPrice } from '@/lib/one-inch/fetch-balance-and-price';
+import { useEnvironmentContext } from '@/components/context';
+import { useAccount } from 'wagmi';
 class GameScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -15,6 +18,7 @@ class GameScene extends Phaser.Scene {
     bgL2Layer!: Phaser.Tilemaps.TilemapLayer;
     bgL2Logo!: Phaser.Tilemaps.TilemapLayer;
     enterButton!: Phaser.GameObjects.Text;
+    talktoScanner!: Phaser.GameObjects.Text;
     exitButton!: Phaser.GameObjects.Text;
     enterGraveButton!: Phaser.GameObjects.Text;
     caveExt!: Phaser.Tilemaps.TilemapLayer;
@@ -34,11 +38,13 @@ class GameScene extends Phaser.Scene {
     talktoZombie!: Phaser.GameObjects.Text;
     enterCaveButton!: Phaser.GameObjects.Text;
     baddie!: Phaser.Tilemaps.TilemapLayer;
+    scanner!: Phaser.Tilemaps.TilemapLayer;
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
     mission: number = 0;
-  npc2: string = '';
+    npc2: string = '';
+    ScannerEntrance!: { x: number; y: number; width: number};
     caveEntrance!: { x: number; y: number; width: number };
     helperEntrance!: { x: number; y: number; width: number };
     zombieEntrance!: { x: number; y: number; width: number };
@@ -209,11 +215,16 @@ class GameScene extends Phaser.Scene {
         this.player.setData('lastShootTime', 0);
     
         // Set pub entrance coordinates (adjust these to match your map)
+        this.ScannerEntrance = { x: 200, y: 370, width: 64 }; // Assuming the pub entrance is 64 pixels wide
         this.caveEntrance = { x: 760, y: 370, width: 100 }; // Assuming the pub entrance is 64 pixels wide
         this.pubEntrance = { x: 400, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
         this.satoshiEntrance= { x: 150, y: 380, width: 64 };
         // Create enter button (initially hidden)
-        
+        this.talktoScanner = this.add.text(0, 0, 'Interact', { 
+          fontSize: '24px', 
+          backgroundColor: '#000000',
+          padding: { x: 10, y: 5 },
+        });
         this.enterButton = this.add.text(0, 0, 'Enter Pub', { 
           fontSize: '24px', 
           backgroundColor: '#000000',
@@ -253,6 +264,10 @@ class GameScene extends Phaser.Scene {
         this.enterCaveButton.on('pointerdown', this.enterCave, this);
         this.enterCaveButton.setVisible(false);
         this.enterCaveButton.setDepth(7);
+        this.talktoScanner.setInteractive();
+        this.talktoScanner.on('pointerdown', this.enterPub, this);
+        this.talktoScanner.setVisible(false);
+        this.talktoScanner.setDepth(7);
         this.talktoZombie.setInteractive();
         this.talktoZombie.on('pointerdown', this.enterPub, this);
         this.talktoZombie.setVisible(false);
@@ -380,10 +395,29 @@ class GameScene extends Phaser.Scene {
             this.checkZombieProximity();
     }   if(this.isInGrave){
         this.checkCaveProximity();
+        this.checkScannerProximity();
     }
         if(this.isInPub){
           this.checkPubExitProximity();
         }
+    }
+    checkScannerProximity() {
+      const playerIsInFrontOfScanner = 
+        this.player.x >= this.ScannerEntrance.x &&
+        this.player.x <= this.ScannerEntrance.x + this.ScannerEntrance.width &&
+        Math.abs(this.player.y - this.ScannerEntrance.y) < 20; // Allow some vertical tolerance
+    
+      if (playerIsInFrontOfScanner) {
+        this.talktoScanner.setVisible(true);
+        this.talktoScanner.setPosition(
+          this.player.x,
+          this.player.y - 50
+        );
+        this.npc2 = 'Scanner';
+      } else if (this.npc2 === 'Scanner') {
+        this.talktoScanner.setVisible(false);
+        this.npc2 = '';
+      }
     }
     checkCaveProximity() {
         const playerIsInFrontOfCave = 
@@ -752,13 +786,12 @@ class GameScene extends Phaser.Scene {
   }
 
   enterGrave() {
-    this.isInGrave = true;
-    
+    this.isInGrave = true;    
     // Create new tilemap for grave interior
     const graveInteriorMap = this.make.tilemap({ key: 'graveInteriorMap' });
     const tilesetInterior = graveInteriorMap.addTilesetImage('graveInterior', 'graveinterior');
     const caveExt = graveInteriorMap.addTilesetImage('caveExt', 'caveExt');
-
+    const buildingsTileset = graveInteriorMap.addTilesetImage('Buildings', 'Buildings');
     if (!tilesetInterior) {
       console.error("Failed to load grave interior tileset");
       return;
@@ -787,7 +820,9 @@ class GameScene extends Phaser.Scene {
     this.groundLayer = graveInteriorMap.createLayer('ground', tilesetInterior)!;
     this.propsLayer = graveInteriorMap.createLayer('bg', tilesetInterior)!;
     this.caveExt = graveInteriorMap.createLayer('caveExt', caveExt!)!;
+    this.scanner = graveInteriorMap.createLayer('Scanner', buildingsTileset!)!;
     this.caveExt.setDepth(2);
+    this.scanner.setDepth(2);
     this.groundLayer.setDepth(2);
     this.propsLayer.setDepth(1);    
     if (!this.groundLayer || !this.propsLayer) {
@@ -822,7 +857,10 @@ class GameScene extends Phaser.Scene {
 }
 const GameComponent: React.FC = () => {
     const gameRef = useRef<Phaser.Game | null>(null);
-    const [gameState, setGameState] = useState({ mission: 2, npc2: '' });
+    const [gameState, setGameState] = useState({ mission: 0, npc2: '' });
+    const [loading, setLoading]=useState(false)
+    const {setBalances, setPrices}=useEnvironmentContext()
+    const {address}=useAccount()
     const setmission= (mission: number) => {
         setGameState({ mission, npc2: gameState.npc2 });
       }
@@ -863,6 +901,15 @@ const GameComponent: React.FC = () => {
     useEffect(() => {
       console.log('Game state updated:', gameState);
     }, [gameState]);
+
+    useEffect(() => {
+      if (status === "connected" && address != undefined) {
+        setLoading(true);
+        fetchBalanceAndPrice(address, setBalances, setPrices).then(() => {
+          setLoading(false);
+        });
+      }
+    }, [status, address]);
   
     return (
       <div className='flex justify-center items-center'>
