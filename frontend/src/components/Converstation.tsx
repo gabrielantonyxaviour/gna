@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+
 interface Message {
     speaker: string;
     text: string;
-    }
+}
+
 const RetroConversationComponent = () => {
   const [currentSpeaker, setCurrentSpeaker] = useState('npc1');
   const [playerInput, setPlayerInput] = useState('');
   const [conversation, setConversation] = useState<Message[]>([
-    { speaker: 'Nakamura', text: 'Hello, traveasdasasler!' },
+    { speaker: 'Nakamura', text: 'Hello, traveler!' },
     { speaker: 'npc2', text: 'Welcome to our village.' },
   ]);
   const [displayedText, setDisplayedText] = useState('');
@@ -22,22 +24,22 @@ const RetroConversationComponent = () => {
     }
   }, [conversation, currentMessageIndex.current]);
 
-  const animateText = (text:any) => {
+  const animateText = (text: string) => {
     setIsAnimating(true);
     let i = 0;
-    setDisplayedText('');
-    const interval = setInterval(() => {
+    const animate = () => {
       if (i < text.length) {
-        setDisplayedText(prev => prev + text.charAt(i));
+        setDisplayedText(text.substring(0, i + 1));
         i++;
+        setTimeout(animate, 50);  // Adjust this value to change the speed of text appearance
       } else {
-        clearInterval(interval);
         setIsAnimating(false);
       }
-    }, 50);  // Adjust this value to change the speed of text appearance
+    };
+    animate();
   };
 
-  const handlePlayerInput = (e:any) => {
+  const handlePlayerInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPlayerInput(e.target.value);
   };
 

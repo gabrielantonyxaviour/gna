@@ -20,12 +20,14 @@ class GameScene extends Phaser.Scene {
     graveProps!: Phaser.Tilemaps.TilemapLayer;
     graveSalt!: Phaser.Tilemaps.TilemapLayer; 
     graveBg!: Phaser.Tilemaps.TilemapLayer;
+    bouncer1!: Phaser.Tilemaps.TilemapLayer;
+    bouncer2!: Phaser.Tilemaps.TilemapLayer;
+    talktoBouncer!: Phaser.GameObjects.Text;
     isInPub: boolean = false;
     isInGrave: boolean = false;
-
+    mission:number = 1;
     pubEntrance!: { x: number; y: number; width: number };
     pubExit!: { x: number; y: number; width: number };
-
     graveEntrance!: { x: number; y: number; width: number };
   
     constructor() {
@@ -44,6 +46,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('pubinterior', '/sprites/pubInterior/pubinterior.png');
         this.load.image('graveinterior', '/sprites/Graveyard/graveInterior.png');
         this.load.image('logo4', '/sprites/logo4.png');
+        this.load.image('bouncer', '/nouns/bouncer.png');
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
@@ -52,7 +55,6 @@ class GameScene extends Phaser.Scene {
             frameWidth: 64, // Adjust this to match your sprite width
             frameHeight: 128 // Adjust this to match your sprite height
           });
-        
       }
       create() {
         const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
@@ -79,7 +81,8 @@ class GameScene extends Phaser.Scene {
         const inchTileset = groundMap.addTilesetImage('1inch_color_black', '1inch');
         const graveTileset = groundMap.addTilesetImage('graveTiles', 'GraveTiles');
         const graveSalt = groundMap.addTilesetImage('Salt', 'Salt'); 
-        const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2'); 
+        const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2');
+        const bouncer= groundMap.addTilesetImage('bouncer', 'bouncer'); 
         const pubTileset= groundMap.addTilesetImage('pubinterior', 'pubinterior'); 
         this.groundLayer = groundMap.createLayer('Ground', tilesTileset!)!;
         this.propsLayer = groundMap.createLayer('Props', propsTileset!)!;
@@ -88,6 +91,9 @@ class GameScene extends Phaser.Scene {
         this.graveSalt = groundMap.createLayer('Grave Salt', graveSalt!)!;
         this.graveProps = groundMap.createLayer('Grave Props', graveTileset!)!;
         this.graveBg = groundMap.createLayer('GraveBG', graveBg!)!;
+        this.bouncer1 = groundMap.createLayer('Bouncer1', bouncer!)!;
+        this.bouncer2 = groundMap.createLayer('Bouncer2', bouncer!)!;
+        this.bouncer2.setVisible(false);
     
         
         // Create 1inch layer using both 1inch and Props tilesets
@@ -146,6 +152,8 @@ class GameScene extends Phaser.Scene {
         this.graveProps.setDepth(5);
         this.graveBg.setDepth(1);
         this.graveRails.setDepth(6);
+        this.bouncer1.setDepth(7);
+        this.bouncer2.setDepth(7);
         this.player.setDepth(7);
         
         // Player properties
@@ -166,6 +174,15 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
           });
+          this.talktoBouncer = this.add.text(0, 0, 'Interact', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
+          this.talktoBouncer.setInteractive();
+        this.talktoBouncer.on('pointerdown', this.enterPub, this);
+        this.talktoBouncer.setVisible(false);
+        this.talktoBouncer.setDepth(7);
         this.enterButton.setInteractive();
         this.enterButton.on('pointerdown', this.enterPub, this);
         this.enterButton.setVisible(false);
@@ -207,7 +224,10 @@ class GameScene extends Phaser.Scene {
             this.player.setVelocityX(0);
             this.player.anims.play('idle', true);
           }
-      
+          if(this.mission==2){
+            this.bouncer2.setVisible(true);
+            this.bouncer1.setVisible(false);
+          }
     
         // Jumping
         if (this.cursors.up.isDown && (this.player.body as Phaser.Physics.Arcade.Body).onFloor()) {
@@ -235,7 +255,10 @@ class GameScene extends Phaser.Scene {
         }
     
         // Check if player is near pub entrance
-        if (!this.isInPub) {
+        if(this.mission==1){
+            this.checkBouncerProximity();
+        }
+        if (!this.isInPub&&this.mission!=1) {
         this.checkPubProximity();
         this.checkGraveProximity();}
         if(this.isInPub){
@@ -257,6 +280,22 @@ class GameScene extends Phaser.Scene {
       );
     } else {
       this.enterButton.setVisible(false);
+    }
+  }
+  checkBouncerProximity() {
+    const playerIsInFrontOfPub = 
+      this.player.x >= this.pubEntrance.x &&
+      this.player.x <= this.pubEntrance.x + this.pubEntrance.width &&
+      Math.abs(this.player.y - this.pubEntrance.y) < 20; // Allow some vertical tolerance
+
+    if (playerIsInFrontOfPub) {
+      this.talktoBouncer.setVisible(true);
+      this.talktoBouncer.setPosition(
+        this.player.x,
+        this.player.y - 50
+      );
+    } else {
+      this.talktoBouncer.setVisible(false);
     }
   }
   checkPubExitProximity() {
