@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@1inch/fusion-sdk": "^2.1.5",
+    "@1inch/limit-order-sdk": "^4.9.3-rc.1",
     "@dynamic-labs/ethereum": "^3.1.1",
     "@dynamic-labs/sdk-react-core": "^3.1.1",
     "@dynamic-labs/wagmi-connector": "^3.1.1",
@@ -53,6 +54,7 @@
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.21.10",
     "wagmi": "^2.12.12",
+    "web3": "^4.13.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

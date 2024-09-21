@@ -398,7 +398,7 @@ export default function Swap({
         onClick={async () => {
           const walletClient = createWalletClient({
             chain: gnosis,
-            transport: custom(window.ethereum),
+            transport: custom((window as any).ethereum),
           });
           const publicClient = createPublicClient({
             chain: gnosis,
