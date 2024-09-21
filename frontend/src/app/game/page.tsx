@@ -23,12 +23,13 @@ class GameScene extends Phaser.Scene {
     bouncer1!: Phaser.Tilemaps.TilemapLayer;
     bouncer2!: Phaser.Tilemaps.TilemapLayer;
     satoshi!: Phaser.Tilemaps.TilemapLayer;
+    villain1!: Phaser.Tilemaps.TilemapLayer;
     talktoBouncer!: Phaser.GameObjects.Text;
     talktoSatoshi!: Phaser.GameObjects.Text;
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
-    mission:number = 1;
+    mission:number = 2;
     pubEntrance!: { x: number; y: number; width: number };
     satoshiEntrance!: { x: number; y: number; width: number };
     pubExit!: { x: number; y: number; width: number };
@@ -52,6 +53,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('logo4', '/sprites/logo4.png');
         this.load.image('bouncer', '/nouns/bouncer.png');
         this.load.image('satoshi', '/nouns/satoshi.png');
+        this.load.image('villan1', '/nouns/villan1.png');
+
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
@@ -100,6 +103,7 @@ class GameScene extends Phaser.Scene {
         this.satoshi = groundMap.createLayer('Satoshi', satoshi!)!;
         this.bouncer1 = groundMap.createLayer('Bouncer1', bouncer!)!;
         this.bouncer2 = groundMap.createLayer('Bouncer2', bouncer!)!;
+
         this.bouncer2.setVisible(false);
     
         
@@ -276,12 +280,8 @@ class GameScene extends Phaser.Scene {
             this.checkBouncerProximity();
             
         }
-        if(this.wallet==false){
+        if(this.wallet==false&&!this.isInPub&&!this.isInGrave){
             this.checkSatoshiProximity();
-            this.satoshi.setCollisionByExclusion([-1], true);
-        }
-        else{
-            this.satoshi.setCollisionByExclusion([-1], false);
         }
         if (!this.isInPub&&!this.isInGrave) {
         }
@@ -378,6 +378,7 @@ class GameScene extends Phaser.Scene {
     // Create new tilemap for pub interior
     const pubInteriorMap = this.make.tilemap({ key: 'pubInteriorMap' });
     const tilesetInterior = pubInteriorMap.addTilesetImage('pubInterior', 'pubinterior');
+    const villan1 = pubInteriorMap.addTilesetImage('villan1', 'villan1');
 
     if (!tilesetInterior) {
       console.error("Failed to load pub interior tileset");
@@ -385,6 +386,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // Clear existing layers
+    this.satoshi.destroy();
     this.bgL2Logo.setVisible(false);
     this.groundLayer.destroy();
     this.propsLayer.destroy();
@@ -401,8 +403,15 @@ class GameScene extends Phaser.Scene {
     // Create new layers for pub interior
     this.groundLayer = pubInteriorMap.createLayer('ground', tilesetInterior)!;
     this.propsLayer = pubInteriorMap.createLayer('background', tilesetInterior)!;
+    if (villan1) {
+      this.villain1 = pubInteriorMap.createLayer('Villan', villan1)!;
+    } else {
+      console.error("Failed to load villan1 tileset");
+    }
+    this.villain1.setDepth(2);
     this.groundLayer.setDepth(2);
     this.propsLayer.setDepth(1);    
+    this.villain1.setCollisionByExclusion([-1], true);
     if (!this.groundLayer || !this.propsLayer) {
       console.error("Failed to create pub interior layers");
       return;

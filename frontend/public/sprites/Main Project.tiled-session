@@ -99,11 +99,11 @@
             "expandedGroupLayers": [
                 11
             ],
-            "scale": 0.99,
-            "selectedLayer": 1,
+            "scale": 1.1397,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 618.1818181818182,
-                "y": 198.98989898989902
+                "x": 586.1191541633764,
+                "y": 201.80749319996488
             }
         },
         "jsons/groundup.json#1inch_color_black": {
@@ -131,6 +131,9 @@
             "scaleInDock": 1
         },
         "jsons/groundup.json#graveTiles": {
+            "scaleInDock": 1
+        },
+        "jsons/groundup.json#satoshi": {
             "scaleInDock": 1
         },
         "jsons/groundup.tmj": {
