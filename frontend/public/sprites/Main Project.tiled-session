@@ -30,6 +30,14 @@
             "scaleInDock": 4,
             "scaleInEditor": 1
         },
+        "graveInterior.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "graveinterior.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "jsons/1inch_color_black.tsx": {
             "scaleInDock": 0.25,
             "scaleInEditor": 1
@@ -75,10 +83,10 @@
         },
         "jsons/graveInterior.json": {
             "scale": 1,
-            "selectedLayer": 1,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 513,
-                "y": 296
+                "x": 456,
+                "y": 348
             }
         },
         "jsons/graveInterior.json#graveInterior": {
@@ -99,11 +107,11 @@
             "expandedGroupLayers": [
                 11
             ],
-            "scale": 1.1397,
-            "selectedLayer": 2,
+            "scale": 1.1433,
+            "selectedLayer": 11,
             "viewCenter": {
-                "x": 594.8933929981574,
-                "y": 193.0332543651838
+                "x": 849.2958978395873,
+                "y": 255.40103210006123
             }
         },
         "jsons/groundup.json#1inch_color_black": {
@@ -134,6 +142,9 @@
             "scaleInDock": 1
         },
         "jsons/groundup.json#satoshi": {
+            "scaleInDock": 1
+        },
+        "jsons/groundup.json#zombie": {
             "scaleInDock": 1
         },
         "jsons/groundup.tmj": {
@@ -170,7 +181,7 @@
             "scaleInDock": 1
         }
     },
-    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/nouns",
+    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/cave",
     "map.height": 30,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
@@ -187,6 +198,8 @@
     ],
     "project": "Main Project.tiled-project",
     "recentFiles": [
+        "graveinterior.tsx",
+        "graveInterior.tsx",
         "Props-01.tsx",
         "Tiles.tsx",
         "BackgroundProps.tsx",
@@ -196,9 +209,7 @@
         "jsons/logo.tsx",
         "jsons/bgL2.json",
         "Buildings.tsx",
-        "jsons/groundup.json",
-        "jsons/1inch_color_black.tsx",
-        "jsons/Salt.tsx"
+        "jsons/groundup.json"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

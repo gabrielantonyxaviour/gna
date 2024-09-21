@@ -16,6 +16,7 @@ class GameScene extends Phaser.Scene {
     enterButton!: Phaser.GameObjects.Text;
     exitButton!: Phaser.GameObjects.Text;
     enterGraveButton!: Phaser.GameObjects.Text;
+    caveExt!: Phaser.Tilemaps.TilemapLayer;
     graveRails!: Phaser.Tilemaps.TilemapLayer;
     graveProps!: Phaser.Tilemaps.TilemapLayer;
     graveSalt!: Phaser.Tilemaps.TilemapLayer; 
@@ -58,7 +59,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('villan1', '/nouns/villan1.png');
         this.load.image('helperguy', '/nouns/helperguy.png');
         this.load.image('zombie', '/nouns/zombie.png');
-
+        this.load.image('caveExt','/sprites/cave/caveExt.png')
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
@@ -565,9 +566,14 @@ class GameScene extends Phaser.Scene {
     // Create new tilemap for grave interior
     const graveInteriorMap = this.make.tilemap({ key: 'graveInteriorMap' });
     const tilesetInterior = graveInteriorMap.addTilesetImage('graveInterior', 'graveinterior');
+    const caveExt = graveInteriorMap.addTilesetImage('caveExt', 'caveExt');
 
     if (!tilesetInterior) {
       console.error("Failed to load grave interior tileset");
+      return;
+    }
+    if (!caveExt) {
+      console.error("Failed to load caveExt tileset");
       return;
     }
 
@@ -579,6 +585,7 @@ class GameScene extends Phaser.Scene {
     this.inchLayer.destroy();
     this.bouncer1.destroy();
     this.bouncer2.destroy();
+    this.satoshi.destroy();
     // this.bgL2Layer.destroy();
     this.graveRails.destroy();
     this.graveSalt.destroy();
@@ -588,6 +595,8 @@ class GameScene extends Phaser.Scene {
     // Create new layers for grave interior
     this.groundLayer = graveInteriorMap.createLayer('ground', tilesetInterior)!;
     this.propsLayer = graveInteriorMap.createLayer('bg', tilesetInterior)!;
+    this.caveExt = graveInteriorMap.createLayer('caveExt', caveExt!)!;
+    this.caveExt.setDepth(2);
     this.groundLayer.setDepth(2);
     this.propsLayer.setDepth(1);    
     if (!this.groundLayer || !this.propsLayer) {
