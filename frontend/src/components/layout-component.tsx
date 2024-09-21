@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import ConnectButton from "@/components/ui/connect-button";
 import { useAccount } from "wagmi";
+import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 
 interface LayoutComponentProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
           <div className="flex w-full justify-between">
             <Image src={"/logo.png"} height={200} width={200} alt="Logo" />
             <div className="flex items-center">
-              <ConnectButton />
+            <DynamicWidget />
             </div>
           </div>
           <div className="h-full w-full flex flex-col justify-center items-center">

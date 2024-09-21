@@ -21,6 +21,7 @@ const RetroConversationComponent = () => {
   useEffect(() => {
     if (currentMessageIndex.current < conversation.length) {
       animateText(conversation[currentMessageIndex.current].text);
+      setCurrentSpeaker(conversation[currentMessageIndex.current].speaker);
     }
   }, [conversation, currentMessageIndex.current]);
 
@@ -67,17 +68,38 @@ const RetroConversationComponent = () => {
     }
   };
 
+  const getSpeakerName = (speaker: string) => {
+    switch (speaker) {
+      case 'npc1':
+      case 'Nakamura':
+        return 'Nakamura';
+      case 'npc2':
+        return 'Bouncer';
+      case 'player':
+        return 'You';
+      default:
+        return speaker;
+    }
+  };
+
   return (
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto mt-1 bg-[#020817] border-2 border-gray-600 text-white rounded-sm">
       <div className="flex w-full mb-4 space-x-4">
-        <div className={`character flex-shrink-0 ${currentSpeaker === 'npc1' ? 'speaking' : ''}`}>
+        <div className={`character flex-shrink-0 ${currentSpeaker === 'npc1' || currentSpeaker === 'Nakamura' ? 'speaking' : ''}`}>
           <img src="/nouns/hero.png" alt="NPC 1" className="rounded-lg" />
         </div>
         <div 
           onClick={handleDialogueClick}
           className="flex-grow p-1 bg-[#161D2A] rounded flex flex-col justify-center cursor-pointer"
         >
-            <div className='p-3'>{displayedText}</div>
+            <div className={`flex flex-col ${currentSpeaker === 'npc2' ? 'items-end' : 'items-start'}`}>
+              <span className="text-yellow-400 font-bold mb-1">
+                {getSpeakerName(currentSpeaker)}
+              </span>
+              <div className={`p-3 bg-[#0d1117] rounded ${currentSpeaker === 'npc2' ? 'text-right' : 'text-left'}`}>
+                {displayedText}
+              </div>
+            </div>
         </div>
         <div className={`character flex-shrink-0 ${currentSpeaker === 'npc2' ? 'speaking' : ''}`}>
           <img src="/nouns/bouncer.png" alt="NPC 2" className="rounded-lg" />
