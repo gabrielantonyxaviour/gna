@@ -66,6 +66,7 @@ export const supportedchains: Record<string, any> = {
       usdt: "0x4ecaba5870353805a9f068101a40e0f32ed605c6",
       gnosis: "0x9c58bacc331c9aa871afd802db6379a98e80cedb",
     },
+    oneInch: "0x111111125421ca6dc452d289314280a0f8842a65",
   },
   [mainnet.id]: {
     id: 2,
