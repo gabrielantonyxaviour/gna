@@ -21,6 +21,7 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import Fusion from "./fusion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Aurora } from "./aurora";
 import NotUnlocked from "./not-unlocked";
@@ -175,8 +176,24 @@ export default function Action({ mission, setMission }: ActionProps) {
                 setTxStatus,
               }}
             />
+          ) : mission != 4 ? (
+            <NotUnlocked mission={"three"} />
           ) : (
-            mission != 4 && <NotUnlocked mission={"three"} />
+            <Fusion
+              {...{
+                fromAmount,
+                setFromAmount,
+                fromToken,
+                setFromToken,
+                toToken,
+                setToToken,
+                toAmount,
+                setToAmount,
+                slippage,
+                txStatus,
+                setTxStatus,
+              }}
+            />
           )}
         </Aurora>
       </DialogContent>
