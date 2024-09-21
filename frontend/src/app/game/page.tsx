@@ -2,6 +2,7 @@
 import { useEffect, useRef,useState } from 'react';
 import Phaser from 'phaser';
 import RetroConversationComponent from '@/components/Converstation';
+import Modals from '@/components/modals';
 class GameScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -30,11 +31,16 @@ class GameScene extends Phaser.Scene {
     talktoBouncer!: Phaser.GameObjects.Text;
     talktoSatoshi!: Phaser.GameObjects.Text;
     talktoHelper!: Phaser.GameObjects.Text;
+    talktoZombie!: Phaser.GameObjects.Text;
+    enterCaveButton!: Phaser.GameObjects.Text;
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
-    mission:number = 2;
+    mission: number = 0;
+  npc2: string = '';
+    caveEntrance!: { x: number; y: number; width: number };
     helperEntrance!: { x: number; y: number; width: number };
+    zombieEntrance!: { x: number; y: number; width: number };
     pubEntrance!: { x: number; y: number; width: number };
     satoshiEntrance!: { x: number; y: number; width: number };
     pubExit!: { x: number; y: number; width: number };
@@ -62,7 +68,9 @@ class GameScene extends Phaser.Scene {
         this.load.image('helperguy', '/nouns/helperguy.png');
         this.load.image('zombie', '/nouns/zombie.png');
         this.load.image('caveExt','/sprites/cave/caveExt.png')
+        this.load.image('caveInt','/sprites/cave/caveInt.png')
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
+        this.load.tilemapTiledJSON('caveInt', '/sprites/jsons/caveInt.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
         this.load.tilemapTiledJSON('graveInteriorMap', '/sprites/jsons/graveInterior.json');
@@ -70,8 +78,13 @@ class GameScene extends Phaser.Scene {
             frameWidth: 64, // Adjust this to match your sprite width
             frameHeight: 128 // Adjust this to match your sprite height
           });
+          this.load.spritesheet('bullet', '/sprites/fireball.png', {
+            frameWidth: 128, // Adjust this to match your sprite width
+            frameHeight: 128 // Adjust this to match your sprite height
+          });
       }
       create() {
+        this.emitState();
         const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
         background.setDisplaySize(this.sys.game.config.width as number, this.sys.game.config.height as number);
         background.setScrollFactor(0);
@@ -113,7 +126,13 @@ class GameScene extends Phaser.Scene {
         this.zombie = groundMap.createLayer('Zombie', zombie!)!;
 
         this.bouncer2.setVisible(false);
-    
+        this.time.addEvent({
+            delay: 100, // Emit state every 100ms
+            callback: this.emitState,
+            callbackScope: this,
+            loop: true
+          });
+      
         
         // Create 1inch layer using both 1inch and Props tilesets
         this.inchLayer = groundMap.createLayer('1inch', [inchTileset!, propsTileset!])!;
@@ -150,6 +169,12 @@ class GameScene extends Phaser.Scene {
             frames: [{ key: 'character', frame: 1 }],
             frameRate: 20
           });
+          this.anims.create({
+            key: 'bullet_animation',
+            frames: this.anims.generateFrameNumbers('bullet', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+          });
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     
@@ -181,15 +206,27 @@ class GameScene extends Phaser.Scene {
         this.player.setData('lastShootTime', 0);
     
         // Set pub entrance coordinates (adjust these to match your map)
+        this.caveEntrance = { x: 760, y: 370, width: 100 }; // Assuming the pub entrance is 64 pixels wide
         this.pubEntrance = { x: 400, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
         this.satoshiEntrance= { x: 150, y: 380, width: 64 };
         // Create enter button (initially hidden)
+        
         this.enterButton = this.add.text(0, 0, 'Enter Pub', { 
           fontSize: '24px', 
           backgroundColor: '#000000',
           padding: { x: 10, y: 5 },
         });
         this.exitButton = this.add.text(0, 0, 'Exit', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
+          this.enterCaveButton = this.add.text(0, 0, 'Enter Cave', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
+          this.talktoZombie = this.add.text(0, 0, 'Interact', { 
             fontSize: '24px', 
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
@@ -209,11 +246,19 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
           });
-          this.talktoHelper.setInteractive();
-            this.talktoHelper.on('pointerdown', this.enterPub, this);
-            this.talktoHelper.setVisible(false);
-            this.talktoHelper.setDepth(7);
-          this.talktoBouncer.setInteractive();
+        this.enterCaveButton.setInteractive();
+        this.enterCaveButton.on('pointerdown', this.enterCave, this);
+        this.enterCaveButton.setVisible(false);
+        this.enterCaveButton.setDepth(7);
+        this.talktoZombie.setInteractive();
+        this.talktoZombie.on('pointerdown', this.enterPub, this);
+        this.talktoZombie.setVisible(false);
+        this.talktoZombie.setDepth(7);
+        this.talktoHelper.setInteractive();
+        this.talktoHelper.on('pointerdown', this.enterPub, this);
+        this.talktoHelper.setVisible(false);
+        this.talktoHelper.setDepth(7);
+        this.talktoBouncer.setInteractive();
         this.talktoBouncer.on('pointerdown', this.enterPub, this);
         this.talktoBouncer.setVisible(false);
         this.talktoBouncer.setDepth(7);
@@ -226,7 +271,7 @@ class GameScene extends Phaser.Scene {
         this.enterButton.setVisible(false);
         this.enterButton.setDepth(7);
         this.helperEntrance = { x: 100, y: 400, width: 64 };
-          
+        this.zombieEntrance = { x: 1000, y: 400, width: 64 };
         this.graveEntrance = { x: 1100, y: 400, width: 64 };
         this.exitButton.setInteractive();
         this.exitButton.on('pointerdown', this.exitPub, this);
@@ -251,6 +296,12 @@ class GameScene extends Phaser.Scene {
         console.log('Pub Layer:', this.pubLayer);
         console.log('1inch Layer:', this.inchLayer);
       }
+      emitState = () => {
+        this.game.events.emit('gameStateUpdate', {
+          mission: this.mission,
+          npc2: this.npc2
+        });
+      }
       update() {
         // Player movement
         if (this.cursors.left.isDown) {
@@ -273,26 +324,40 @@ class GameScene extends Phaser.Scene {
           this.player.setVelocityY(-330);
         }
     
-        // Shooting
-        if (this.spaceKey.isDown && this.time.now - (this.player.getData('lastShootTime') as number) > 500) {
-          const bullet = this.bullets.create(this.player.x, this.player.y, 'bullet') as Phaser.Physics.Arcade.Sprite;
-          bullet.setCircle(4);
-          bullet.setTint(0xff0000);
-          bullet.setDepth(7);
-          if (bullet.body) {
-            (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+        if (this.cursors.left.isDown) {
+            this.player.setData('lastDirection', 'left');
+          } else if (this.cursors.right.isDown) {
+            this.player.setData('lastDirection', 'right');
           }
-          
-          const velocity = (this.player.body as Phaser.Physics.Arcade.Body).velocity.x > 0 ? 400 : -400;
-          bullet.setVelocity(velocity, 0);
-    
-          this.time.delayedCall(1500, () => {
-            bullet.destroy();
-          });
-    
-          this.player.setData('lastShootTime', this.time.now);
-        }
-    
+      
+          // Modify the shooting logic in the update method
+          if (this.spaceKey.isDown && this.time.now - (this.player.getData('lastShootTime') as number) > 500) {
+            const bulletX = this.player.getData('lastDirection') === 'left' ? this.player.x - 20 : this.player.x + 20;
+            const bullet = this.bullets.create(bulletX, this.player.y, 'bullet') as Phaser.Physics.Arcade.Sprite;
+            bullet.setDisplaySize(64, 64);
+            bullet.setDepth(7);
+            if (bullet.body) {
+              (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+            }
+            
+            const direction = this.player.getData('lastDirection') === 'left' ? -1 : 1;
+            const velocity = 400 * direction;
+            bullet.setVelocity(velocity, 0);
+      
+            // Play the bullet animation
+            bullet.play('bullet_animation');
+      
+            // Flip the bullet sprite if shooting right
+            bullet.flipX = this.player.getData('lastDirection') === 'right';
+      
+            this.time.delayedCall(1500, () => {
+              bullet.destroy();
+            });
+      
+            this.player.setData('lastShootTime', this.time.now);
+          }
+        
+        
         // Check if player is near pub entrance
         if(this.mission==1){
             this.checkBouncerProximity();
@@ -308,11 +373,45 @@ class GameScene extends Phaser.Scene {
         }
         if (!this.isInPub&&this.mission!=1) {
         this.checkPubProximity();
-        this.checkGraveProximity();}
+        this.checkGraveProximity();
+            this.checkZombieProximity();
+    }   if(this.isInGrave){
+        this.checkCaveProximity();
+    }
         if(this.isInPub){
           this.checkPubExitProximity();
         }
     }
+    checkCaveProximity() {
+        const playerIsInFrontOfCave = 
+          this.player.x >= this.caveEntrance.x &&
+          this.player.x <= this.caveEntrance.x + this.caveEntrance.width &&
+          Math.abs(this.player.y - this.caveEntrance.y) < 20; // Allow some vertical tolerance
+    
+        if (playerIsInFrontOfCave) {
+          this.enterCaveButton.setVisible(true);
+          this.enterCaveButton.setPosition(
+            this.player.x,
+            this.player.y - 50
+          );
+        } else {
+          this.enterCaveButton.setVisible(false);}
+    }
+    checkZombieProximity() {
+        const playerIsInFrontOfZombie = 
+          this.player.x >= this.zombieEntrance.x &&
+          this.player.x <= this.zombieEntrance.x + this.zombieEntrance.width &&
+          Math.abs(this.player.y - this.zombieEntrance.y) < 20;
+    
+        if (playerIsInFrontOfZombie) {
+          this.talktoZombie.setVisible(true);
+          this.talktoZombie.setPosition(this.player.x, this.player.y - 50);
+          this.npc2 = 'Zombie';
+        } else if (this.npc2 === 'Zombie') {
+          this.talktoZombie.setVisible(false);
+          this.npc2 = '';
+        }
+      }
     checkHelperProximity() {
         const playerIsInFrontOfHelper = 
           this.player.x >= this.helperEntrance.x &&
@@ -325,8 +424,10 @@ class GameScene extends Phaser.Scene {
             this.player.x,
             this.player.y - 50
           );
+          this.npc2 = 'helperguy';
         } else {
           this.talktoHelper.setVisible(false);
+            this.npc2 = '';
         }
       }
     checkSatoshiProximity() {
@@ -341,8 +442,10 @@ class GameScene extends Phaser.Scene {
             this.player.x,
             this.player.y - 50
           );
+          this.npc2 = 'Satoshi';
         } else {
           this.talktoSatoshi.setVisible(false);
+          this.npc2 = '';
         }
       }
   checkPubProximity() {
@@ -373,8 +476,10 @@ class GameScene extends Phaser.Scene {
         this.player.x,
         this.player.y - 50
       );
+      this.npc2 = 'Bouncer';
     } else {
       this.talktoBouncer.setVisible(false);
+      this.npc2 = '';
     }
   }
   checkPubExitProximity() {
@@ -485,7 +590,52 @@ class GameScene extends Phaser.Scene {
     // Emit an event to notify that we've entered the pub
     this.events.emit('enteredPub');
   }
+  enterCave() {
+    this.isInPub = true;
+    
+    // Create new tilemap for pub interior
+    const caveIntMap = this.make.tilemap({ key: 'caveInt' });
+    const tilesetInterior = caveIntMap.addTilesetImage('caveInt', 'caveInt');
 
+    if (!tilesetInterior) {
+      console.error("Failed to load pub interior tileset");
+      return;
+    }
+    this.groundLayer.destroy();
+    this.propsLayer.destroy();
+    this.caveExt.destroy();
+    this.groundLayer = caveIntMap.createLayer('ground', tilesetInterior)!;
+    this.propsLayer = caveIntMap.createLayer('bg', tilesetInterior)!;
+    this.groundLayer.setDepth(2);
+    this.propsLayer.setDepth(1);    
+    if (!this.groundLayer || !this.propsLayer) {
+      console.error("Failed to create pub interior layers");
+      return;
+    }
+    // Adjust world bounds and camera
+    this.physics.world.setBounds(0, 0, caveIntMap.widthInPixels, caveIntMap.heightInPixels);
+    this.cameras.main.setBounds(0, 0, caveIntMap.widthInPixels, caveIntMap.heightInPixels);
+
+    // Set player position inside pub
+    this.player.setPosition(10, caveIntMap.heightInPixels/3);
+
+    // Hide enter button
+    this.enterButton.setVisible(false);
+
+    // Set collision for ground layer
+    this.groundLayer.setCollisionByExclusion([-1], true);
+
+    // Remove existing colliders
+    this.physics.world.colliders.destroy();
+
+    // Add new collider
+    this.physics.add.collider(this.player, this.groundLayer);
+
+    console.log("Entered pub. Ground layer:", this.groundLayer);
+
+    // Emit an event to notify that we've entered the pub
+    this.events.emit('enteredPub');
+  }
  
   exitPub() {
     console.log("Exiting pub...");
@@ -577,7 +727,7 @@ class GameScene extends Phaser.Scene {
         this.groundLayer.setCollisionByExclusion([-1], true);
         this.physics.add.collider(this.player, this.groundLayer);
         console.log("Collisions set up successfully.");
-    if (this.groundLayer && this.groundLayer.tilemapLayer && this.groundLayer.tilemapLayer.tilemap) {
+    if (this.groundLayer && this.groundLayer.tilemap) {
         console.log("Setting up collisions...");
         this.groundLayer.setCollisionByExclusion([-1], true);
         this.physics.add.collider(this.player, this.groundLayer);
@@ -662,7 +812,10 @@ class GameScene extends Phaser.Scene {
 }
 const GameComponent: React.FC = () => {
     const gameRef = useRef<Phaser.Game | null>(null);
-  
+    const [gameState, setGameState] = useState({ mission: 2, npc2: '' });
+    const setmission= (mission: number) => {
+        setGameState({ mission, npc2: gameState.npc2 });
+      }
     useEffect(() => {
       const config: Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
@@ -681,22 +834,38 @@ const GameComponent: React.FC = () => {
   
       gameRef.current = new Phaser.Game(config);
   
+      const handleGameStateUpdate = (state: { mission: number, npc2: string }) => {
+        setGameState(state);
+      };
+  
+      if (gameRef.current) {
+        gameRef.current.events.on('gameStateUpdate', handleGameStateUpdate);
+      }
+  
       return () => {
         if (gameRef.current) {
+          gameRef.current.events.off('gameStateUpdate', handleGameStateUpdate);
           gameRef.current.destroy(true);
         }
       };
     }, []);
   
-    return (<div className='flex justify-center items-center'>
-      <div className='flex flex-col justify-center items-center w-[640px]'>
-      {/* <DynamicWidget variant='dropdown' /> */}
+    useEffect(() => {
+      console.log('Game state updated:', gameState);
+    }, [gameState]);
   
-        <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
-  
-        <RetroConversationComponent />
+    return (
+      <div className='flex justify-center items-center'>
+        <div className='flex flex-col justify-center items-center w-[640px]'>
+          <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
+          <RetroConversationComponent mission={gameState.mission} npc2={gameState.npc2}/>
+          <div>Mission: {gameState.mission}</div>
+          <div>NPC2: {gameState.npc2}</div>
+          <Modals option={gameState.mission} setOption={setmission} />
+        </div>
       </div>
-    </div>);
+    );
   };
+  
   
   export default GameComponent;

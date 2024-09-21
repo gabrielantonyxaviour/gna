@@ -111,10 +111,10 @@
                 11
             ],
             "scale": 1.1433,
-            "selectedLayer": 11,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 849.2958978395873,
-                "y": 255.40103210006123
+                "x": 1332.1088078369633,
+                "y": 334.9951893641214
             }
         },
         "jsons/groundup.json#1inch_color_black": {
@@ -184,7 +184,7 @@
             "scaleInDock": 1
         }
     },
-    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/cave",
+    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/sprites/cave",
     "map.height": 30,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
