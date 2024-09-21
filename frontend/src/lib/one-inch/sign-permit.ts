@@ -27,7 +27,7 @@ export default async function signPermit({
     name: process.env.NEXT_PUBLIC_HOST || "http://localhost:3000",
     version: "1",
     chainId: chainId, // Assuming Ethereum mainnet
-    verifyingContract: supportedchains[chainId].oneInchVerifierContract,
+    verifyingContract: supportedchains[chainId].oneInch,
   };
   const types = {
     Order: [

@@ -76,7 +76,7 @@ export default function Swap({
   const [accordionOpen, setAccordionOpen] = useState<boolean>(false);
   const [permitSignature, setPermitSignature] = useState<string>("");
   const [wrapTxHash, setWrapTxHash] = useState<string>("");
-  const [wrapPending, setWrapPending] = useState<boolean>(true);
+  const [wrapPending, setWrapPending] = useState<boolean>(false);
   useEffect(() => {
     if (prices.length == 2)
       setToAmount(
