@@ -30,11 +30,15 @@ class GameScene extends Phaser.Scene {
     talktoBouncer!: Phaser.GameObjects.Text;
     talktoSatoshi!: Phaser.GameObjects.Text;
     talktoHelper!: Phaser.GameObjects.Text;
+    talktoZombie!: Phaser.GameObjects.Text;
+    enterCaveButton!: Phaser.GameObjects.Text;
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
     mission:number = 2;
+    caveEntrance!: { x: number; y: number; width: number };
     helperEntrance!: { x: number; y: number; width: number };
+    zombieEntrance!: { x: number; y: number; width: number };
     pubEntrance!: { x: number; y: number; width: number };
     satoshiEntrance!: { x: number; y: number; width: number };
     pubExit!: { x: number; y: number; width: number };
@@ -181,15 +185,27 @@ class GameScene extends Phaser.Scene {
         this.player.setData('lastShootTime', 0);
     
         // Set pub entrance coordinates (adjust these to match your map)
+        this.caveEntrance = { x: 760, y: 370, width: 100 }; // Assuming the pub entrance is 64 pixels wide
         this.pubEntrance = { x: 400, y: 400, width: 64 }; // Assuming the pub entrance is 64 pixels wide
         this.satoshiEntrance= { x: 150, y: 380, width: 64 };
         // Create enter button (initially hidden)
+        
         this.enterButton = this.add.text(0, 0, 'Enter Pub', { 
           fontSize: '24px', 
           backgroundColor: '#000000',
           padding: { x: 10, y: 5 },
         });
         this.exitButton = this.add.text(0, 0, 'Exit', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
+          this.enterCaveButton = this.add.text(0, 0, 'Enter Cave', { 
+            fontSize: '24px', 
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+          });
+          this.talktoZombie = this.add.text(0, 0, 'Interact', { 
             fontSize: '24px', 
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
@@ -209,11 +225,19 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
           });
-          this.talktoHelper.setInteractive();
-            this.talktoHelper.on('pointerdown', this.enterPub, this);
-            this.talktoHelper.setVisible(false);
-            this.talktoHelper.setDepth(7);
-          this.talktoBouncer.setInteractive();
+        this.enterCaveButton.setInteractive();
+        this.enterCaveButton.on('pointerdown', this.enterPub, this);
+        this.enterCaveButton.setVisible(false);
+        this.enterCaveButton.setDepth(7);
+        this.talktoZombie.setInteractive();
+        this.talktoZombie.on('pointerdown', this.enterPub, this);
+        this.talktoZombie.setVisible(false);
+        this.talktoZombie.setDepth(7);
+        this.talktoHelper.setInteractive();
+        this.talktoHelper.on('pointerdown', this.enterPub, this);
+        this.talktoHelper.setVisible(false);
+        this.talktoHelper.setDepth(7);
+        this.talktoBouncer.setInteractive();
         this.talktoBouncer.on('pointerdown', this.enterPub, this);
         this.talktoBouncer.setVisible(false);
         this.talktoBouncer.setDepth(7);
@@ -226,7 +250,7 @@ class GameScene extends Phaser.Scene {
         this.enterButton.setVisible(false);
         this.enterButton.setDepth(7);
         this.helperEntrance = { x: 100, y: 400, width: 64 };
-          
+        this.zombieEntrance = { x: 1000, y: 400, width: 64 };
         this.graveEntrance = { x: 1100, y: 400, width: 64 };
         this.exitButton.setInteractive();
         this.exitButton.on('pointerdown', this.exitPub, this);
@@ -308,11 +332,46 @@ class GameScene extends Phaser.Scene {
         }
         if (!this.isInPub&&this.mission!=1) {
         this.checkPubProximity();
-        this.checkGraveProximity();}
+        this.checkGraveProximity();
+            this.checkZombieProximity();
+    }   if(this.isInGrave){
+        this.checkCaveProximity();
+    }
         if(this.isInPub){
           this.checkPubExitProximity();
         }
     }
+    checkCaveProximity() {
+        const playerIsInFrontOfCave = 
+          this.player.x >= this.caveEntrance.x &&
+          this.player.x <= this.caveEntrance.x + this.caveEntrance.width &&
+          Math.abs(this.player.y - this.caveEntrance.y) < 20; // Allow some vertical tolerance
+    
+        if (playerIsInFrontOfCave) {
+          this.enterCaveButton.setVisible(true);
+          this.enterCaveButton.setPosition(
+            this.player.x,
+            this.player.y - 50
+          );
+        } else {
+          this.enterCaveButton.setVisible(false);}
+    }
+    checkZombieProximity() {
+        const playerIsInFrontOfZombie = 
+          this.player.x >= this.zombieEntrance.x &&
+          this.player.x <= this.zombieEntrance.x + this.zombieEntrance.width &&
+          Math.abs(this.player.y - this.zombieEntrance.y) < 20; // Allow some vertical tolerance
+    
+        if (playerIsInFrontOfZombie) {
+          this.talktoZombie.setVisible(true);
+          this.talktoZombie.setPosition(
+            this.player.x,
+            this.player.y - 50
+          );
+        } else {
+          this.talktoZombie.setVisible(false);
+        }
+      }
     checkHelperProximity() {
         const playerIsInFrontOfHelper = 
           this.player.x >= this.helperEntrance.x &&
