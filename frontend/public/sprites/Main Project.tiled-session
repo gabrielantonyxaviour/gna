@@ -156,9 +156,12 @@
             "scale": 0.89,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 430.3370786516854,
-                "y": 229.2134831460674
+                "x": 502.24719101123594,
+                "y": 308.98876404494376
             }
+        },
+        "jsons/pubinterior.json#helperguy": {
+            "scaleInDock": 1
         },
         "jsons/pubinterior.json#pubInterior": {
             "scaleInDock": 1

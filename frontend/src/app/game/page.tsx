@@ -22,6 +22,7 @@ class GameScene extends Phaser.Scene {
     graveBg!: Phaser.Tilemaps.TilemapLayer;
     bouncer1!: Phaser.Tilemaps.TilemapLayer;
     bouncer2!: Phaser.Tilemaps.TilemapLayer;
+    zombie!: Phaser.Tilemaps.TilemapLayer;
     satoshi!: Phaser.Tilemaps.TilemapLayer;
     helperguy!: Phaser.Tilemaps.TilemapLayer;
     villain1!: Phaser.Tilemaps.TilemapLayer;
@@ -56,6 +57,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('satoshi', '/nouns/satoshi.png');
         this.load.image('villan1', '/nouns/villan1.png');
         this.load.image('helperguy', '/nouns/helperguy.png');
+        this.load.image('zombie', '/nouns/zombie.png');
+
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
@@ -93,7 +96,7 @@ class GameScene extends Phaser.Scene {
         const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2');
         const bouncer= groundMap.addTilesetImage('bouncer', 'bouncer');
         const satoshi= groundMap.addTilesetImage('satoshi', 'satoshi');
-        const pubTileset= groundMap.addTilesetImage('pubinterior', 'pubinterior'); 
+        const zombie= groundMap.addTilesetImage('zombie', 'zombie');
         this.groundLayer = groundMap.createLayer('Ground', tilesTileset!)!;
         this.propsLayer = groundMap.createLayer('Props', propsTileset!)!;
         this.pubLayer = groundMap.createLayer('Pub', buildingsTileset!)!;
@@ -104,6 +107,7 @@ class GameScene extends Phaser.Scene {
         this.satoshi = groundMap.createLayer('Satoshi', satoshi!)!;
         this.bouncer1 = groundMap.createLayer('Bouncer1', bouncer!)!;
         this.bouncer2 = groundMap.createLayer('Bouncer2', bouncer!)!;
+        this.zombie = groundMap.createLayer('Zombie', zombie!)!;
 
         this.bouncer2.setVisible(false);
     
@@ -166,6 +170,7 @@ class GameScene extends Phaser.Scene {
         this.graveBg.setDepth(1);
         this.graveRails.setDepth(6);
         this.bouncer1.setDepth(5);
+        this.zombie.setDepth(6);
         this.bouncer2.setDepth(5);
         this.player.setDepth(7);
         // Player properties
