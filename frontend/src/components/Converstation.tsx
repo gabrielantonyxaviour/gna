@@ -22,7 +22,19 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
   const [currentDialogue, setCurrentDialogue] = useState<Message[]>([]);
   const [displayedText, setDisplayedText] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [nextSpeaker, setNextSpeaker] = useState<string | null>(null);
   const currentMessageIndex = useRef(0);
+
+  const tutorialConvo: Message[] = [
+    { id: 1, characterId: 2, message: "Hey Degen, Satoshi here, Welcome to Grand Nouns Auto, connect your Ledger to get started." },
+    { id: 2, characterId: 2, message: "All your money lives in your Ledger. Each account has a unique address—kinda like your username, but for sending and receiving crypto. You can create more accounts if you want to organize your money." },
+    { id: 3, characterId: 2, message: "Under the Tokens tab, you'll find all the cryptocurrencies you own. If you don't see a token you've bought, you might need to add it manually. But we'll cross that bridge when we get there." },
+    { id: 4, characterId: 2, message: "The Activity tab shows all your past transactions. If you ever need to check what you've sent or received, this is where to look." },
+    { id: 5, characterId: 2, message: "Now, let's talk about Buy & Send. When you want to get some crypto, hit the Buy button and follow the steps to fund your account. To send crypto to someone else, tap Send—just make sure you copy the recipient's address carefully. One wrong character, and it could end up in the wrong place." },
+    { id: 6, characterId: 2, message: "Lastly, there's Swap. If you need to trade one token for another—like switching ETH for a different token—you can do that easily here." },
+    { id: 7, characterId: 2, message: "And remember, the most important rule of all: Never, ever share your private key or recovery phrase. Keep them safe, and you'll be good to go. If you ever forget them, there's no recovery—so protect them like your most valuable treasure." },
+    { id: 8, characterId: 2, message: "That's it for now! You're all set with Ledger and MetaMask. If you need help along the way about DeFi, just ask, and I'll be here to guide you. Ready to dive into the game?" }
+  ];
 
   const initialConvo: Message[] = [
     { id: 1, characterId: 2, message: "Wake up Degen. We got a city to rule!" },
@@ -52,6 +64,9 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
 
   useEffect(() => {
     switch(mission) {
+      case 0:
+        setCurrentDialogue(tutorialConvo);
+        break;
       case 1:
         setCurrentDialogue(initialConvo);
         break;
@@ -62,7 +77,7 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
         setCurrentDialogue(mission3Convo);
         break;
       default:
-        setCurrentDialogue(initialConvo);
+        setCurrentDialogue(tutorialConvo);
     }
     currentMessageIndex.current = 0;
     checkAndDisplayMessage();
@@ -75,7 +90,7 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
       if (i < text.length) {
         setDisplayedText(text.substring(0, i + 1));
         i++;
-        setTimeout(animate, 50);  // Adjust this value to change the speed of text appearance
+        setTimeout(animate, 20);  // Adjust this value to change the speed of text appearance
       } else {
         setIsAnimating(false);
       }
@@ -89,9 +104,14 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
       const currentCharacter = characterMap[currentMessage.characterId];
       if (currentCharacter.name.toLowerCase() === npc2.toLowerCase() || currentMessage.characterId === 1) {
         animateText(currentMessage.message);
+        setNextSpeaker(null);
       } else {
         setDisplayedText('');
+        const nextCharacter = characterMap[currentMessage.characterId];
+        setNextSpeaker(nextCharacter.name);
       }
+    } else {
+      setNextSpeaker(null);
     }
   };
 
@@ -128,14 +148,20 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
           onClick={handleDialogueClick}
           className="flex-grow p-1 bg-[#161D2A] rounded flex flex-col justify-center cursor-pointer"
         >
-            <div className={`flex flex-col ${currentCharacter.name !== 'Hero' ? 'items-end' : 'items-start'}`}>
-              <span className="text-yellow-400 font-bold mb-1">
-                {currentCharacter.name}
-              </span>
-              <div className={`p-3 bg-[#0d1117] rounded ${currentCharacter.name !== 'Hero' ? 'text-right' : 'text-left'}`}>
-                {displayedText}
+            {nextSpeaker ? (
+              <div className="text-center text-yellow-400">
+                Go find {nextSpeaker} to continue the mission.
               </div>
-            </div>
+            ) : (
+              <div className={`flex flex-col ${currentCharacter.name !== 'Hero' ? 'items-end' : 'items-start'}`}>
+                <span className="text-yellow-400 font-bold mb-1">
+                  {currentCharacter.name}
+                </span>
+                <div className={`p-3 bg-[#0d1117] rounded ${currentCharacter.name !== 'Hero' ? 'text-right' : 'text-left'}`}>
+                  {displayedText}
+                </div>
+              </div>
+            )}
         </div>
         <div className={`character flex-shrink-0 ${currentCharacter.name !== 'Hero' ? 'speaking' : ''}`}>
           {currentCharacter.name !== 'Hero' && <img src={currentCharacter.image} alt={currentCharacter.name} className="rounded-lg" />}
