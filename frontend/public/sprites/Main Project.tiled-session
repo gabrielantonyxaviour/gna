@@ -77,11 +77,14 @@
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 342,
-                "y": 291
+                "x": 513,
+                "y": 296
             }
         },
         "jsons/graveInterior.json#graveInterior": {
+            "scaleInDock": 1
+        },
+        "jsons/graveInterior.json#graveinterior": {
             "scaleInDock": 1
         },
         "jsons/graveInterior.tsx": {
