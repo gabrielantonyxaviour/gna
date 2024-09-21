@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { useAccount } from "wagmi";
 import { decodeAbiParameters } from "viem";
 import { useEnvironmentContext } from "./context";
+import Image from "next/image";
 
 const unpack = (
   proof: `0x${string}`
@@ -43,12 +44,12 @@ export default function WorldcoinComponent() {
       {({ open }) => (
         // This is the button that will open the IDKit modal
         <>
+        <Image src={"/nouns/hero.png"} height={100} width={100} alt="hero" />
           <Button variant={"secondary"} onClick={open}>
-            Prove you are a Human
+            Prove Humanity
           </Button>
-          <p>
-            Note: The in game milestones/progress is attested to your proof of
-            Humanity. Humanness.
+          <p className="text-sm mt-4">
+           In game progress/milestones are attested to your World ID
           </p>
         </>
       )}

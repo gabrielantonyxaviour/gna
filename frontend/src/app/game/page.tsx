@@ -3,6 +3,9 @@ import { useEffect, useRef,useState } from 'react';
 import Phaser from 'phaser';
 import RetroConversationComponent from '@/components/Converstation';
 import Modals from '@/components/modals';
+import { fetchBalanceAndPrice } from '@/lib/one-inch/fetch-balance-and-price';
+import { useEnvironmentContext } from '@/components/context';
+import { useAccount } from 'wagmi';
 class GameScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -29,7 +32,6 @@ class GameScene extends Phaser.Scene {
     satoshi!: Phaser.Tilemaps.TilemapLayer;
     helperguy!: Phaser.Tilemaps.TilemapLayer;
     villain1!: Phaser.Tilemaps.TilemapLayer;
-    talktoScanner!: Phaser.GameObjects.Text;
     talktoBouncer!: Phaser.GameObjects.Text;
     talktoSatoshi!: Phaser.GameObjects.Text;
     talktoHelper!: Phaser.GameObjects.Text;
@@ -855,7 +857,10 @@ class GameScene extends Phaser.Scene {
 }
 const GameComponent: React.FC = () => {
     const gameRef = useRef<Phaser.Game | null>(null);
-    const [gameState, setGameState] = useState({ mission: 2, npc2: '' });
+    const [gameState, setGameState] = useState({ mission: 0, npc2: '' });
+    const [loading, setLoading]=useState(false)
+    const {setBalances, setPrices}=useEnvironmentContext()
+    const {address}=useAccount()
     const setmission= (mission: number) => {
         setGameState({ mission, npc2: gameState.npc2 });
       }
@@ -896,6 +901,15 @@ const GameComponent: React.FC = () => {
     useEffect(() => {
       console.log('Game state updated:', gameState);
     }, [gameState]);
+
+    useEffect(() => {
+      if (status === "connected" && address != undefined) {
+        setLoading(true);
+        fetchBalanceAndPrice(address, setBalances, setPrices).then(() => {
+          setLoading(false);
+        });
+      }
+    }, [status, address]);
   
     return (
       <div className='flex justify-center items-center'>

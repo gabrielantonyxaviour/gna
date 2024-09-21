@@ -3,12 +3,16 @@ import Image from "next/image";
 import ConnectButton from "@/components/ui/connect-button";
 import { useAccount } from "wagmi";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { useEnvironmentContext } from "./context";
+import WorldcoinComponent from "./WorldcoinComponent";
 
 interface LayoutComponentProps {
   children: React.ReactNode;
 }
 
 export default function LayoutComponent({ children }: LayoutComponentProps) {
+  const {worldcoinData} = useEnvironmentContext()
+  const {address, status}=useAccount()
   return (
     <>
       <div className="h-screen flex">
@@ -20,7 +24,7 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
             </div>
           </div>
           <div className="h-full w-full flex flex-col justify-center items-center">
-            {children}
+            {worldcoinData==null?<WorldcoinComponent/>:address==undefined||status!='connected'?<DynamicWidget/>: children}
           </div>
         </div>
       </div>
