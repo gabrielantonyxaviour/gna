@@ -363,3 +363,6 @@ export const WRAPPED_ABI = [
     type: "event",
   },
 ];
+
+export const MILESTONE_ATTESTATION_ID = "0x7a";
+export const MILESTONE_FULL_SCHEMA_ID = "onchain_evm_10200_0x7a";
