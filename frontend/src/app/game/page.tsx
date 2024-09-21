@@ -42,7 +42,7 @@ class GameScene extends Phaser.Scene {
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
-    mission: number = 0;
+    mission: number = 1;
     npc2: string = '';
     ScannerEntrance!: { x: number; y: number; width: number};
     caveEntrance!: { x: number; y: number; width: number };
@@ -255,7 +255,7 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
           });
-          this.talktoBouncer = this.add.text(0, 0, 'Interact', { 
+          this.talktoBouncer = this.add.text(0, 0, 'Bouncer', { 
             fontSize: '24px', 
             backgroundColor: '#000000',
             padding: { x: 10, y: 5 },
@@ -377,7 +377,7 @@ class GameScene extends Phaser.Scene {
         
         
         // Check if player is near pub entrance
-        if(this.mission==1){
+        if(this.mission<=1){
             this.checkBouncerProximity();
             
         }
@@ -506,17 +506,21 @@ class GameScene extends Phaser.Scene {
       this.player.x >= this.pubEntrance.x &&
       this.player.x <= this.pubEntrance.x + this.pubEntrance.width &&
       Math.abs(this.player.y - this.pubEntrance.y) < 20; // Allow some vertical tolerance
-
+  
     if (playerIsInFrontOfPub) {
+      if (this.npc2 !== 'Bouncer') {
+        this.npc2 = 'Bouncer';
+        this.emitState(); // Emit the updated state
+      }
       this.talktoBouncer.setVisible(true);
       this.talktoBouncer.setPosition(
         this.player.x,
         this.player.y - 50
       );
-      this.npc2 = 'Bouncer';
-    } else {
-      this.talktoBouncer.setVisible(false);
+    } else if (this.npc2 === 'Bouncer') {
       this.npc2 = '';
+      this.emitState(); // Emit the updated state
+      this.talktoBouncer.setVisible(false);
     }
   }
   checkPubExitProximity() {
@@ -918,7 +922,7 @@ const GameComponent: React.FC = () => {
           <RetroConversationComponent mission={gameState.mission} npc2={gameState.npc2}/>
           <div>Mission: {gameState.mission}</div>
           <div>NPC2: {gameState.npc2}</div>
-          <Modals option={gameState.mission} setOption={setmission} />
+          <Modals option={0} setOption={setmission} />
         </div>
       </div>
     );
