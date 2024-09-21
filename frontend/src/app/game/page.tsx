@@ -2,6 +2,7 @@
 import { useEffect, useRef,useState } from 'react';
 import Phaser from 'phaser';
 import RetroConversationComponent from '@/components/Converstation';
+import Modals from '@/components/modals';
 class GameScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -35,7 +36,7 @@ class GameScene extends Phaser.Scene {
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
-    mission: number = 2;
+    mission: number = 0;
   npc2: string = '';
     caveEntrance!: { x: number; y: number; width: number };
     helperEntrance!: { x: number; y: number; width: number };
@@ -812,7 +813,9 @@ class GameScene extends Phaser.Scene {
 const GameComponent: React.FC = () => {
     const gameRef = useRef<Phaser.Game | null>(null);
     const [gameState, setGameState] = useState({ mission: 2, npc2: '' });
-  
+    const setmission= (mission: number) => {
+        setGameState({ mission, npc2: gameState.npc2 });
+      }
     useEffect(() => {
       const config: Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
@@ -855,9 +858,10 @@ const GameComponent: React.FC = () => {
       <div className='flex justify-center items-center'>
         <div className='flex flex-col justify-center items-center w-[640px]'>
           <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
-          <RetroConversationComponent npc2={gameState.npc2}/>
+          <RetroConversationComponent mission={gameState.mission} npc2={gameState.npc2}/>
           <div>Mission: {gameState.mission}</div>
           <div>NPC2: {gameState.npc2}</div>
+          <Modals option={gameState.mission} setOption={setmission} />
         </div>
       </div>
     );
