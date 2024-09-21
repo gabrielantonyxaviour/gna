@@ -30,6 +30,10 @@
             "scaleInDock": 4,
             "scaleInEditor": 1
         },
+        "caveInt.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "graveInterior.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -80,6 +84,23 @@
         "jsons/brush.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
+        },
+        "jsons/caveExt.tsx": {
+            "scaleInEditor": 1
+        },
+        "jsons/caveInt.json": {
+            "scale": 1,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 393,
+                "y": 143
+            }
+        },
+        "jsons/caveInt.json#baddie": {
+            "scaleInDock": 1
+        },
+        "jsons/caveInt.json#caveInt": {
+            "scaleInDock": 0.7442
         },
         "jsons/graveInterior.json": {
             "scale": 1,
@@ -182,9 +203,13 @@
         },
         "jsons/pubinterior.json#villan1": {
             "scaleInDock": 1
+        },
+        "jsons/zombie.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         }
     },
-    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/sprites/cave",
+    "last.imagePath": "/Users/romariokavin/Documents/PersonalProjects/grand-nouns-auto-public/gna/frontend/public/nouns",
     "map.height": 30,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
@@ -201,6 +226,9 @@
     ],
     "project": "Main Project.tiled-project",
     "recentFiles": [
+        "caveInt.tsx",
+        "jsons/zombie.tsx",
+        "jsons/caveExt.tsx",
         "graveinterior.tsx",
         "graveInterior.tsx",
         "Props-01.tsx",
@@ -209,10 +237,7 @@
         "jsons/graveTiles.tsx",
         "jsons/logo4.tsx",
         "jsons/graveInterior.tsx",
-        "jsons/logo.tsx",
-        "jsons/bgL2.json",
-        "Buildings.tsx",
-        "jsons/groundup.json"
+        "jsons/logo.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
