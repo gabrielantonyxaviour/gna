@@ -35,7 +35,8 @@ class GameScene extends Phaser.Scene {
     wallet:boolean = false;
     isInPub: boolean = false;
     isInGrave: boolean = false;
-    mission:number = 2;
+    mission: number = 2;
+  npc2: string = '';
     caveEntrance!: { x: number; y: number; width: number };
     helperEntrance!: { x: number; y: number; width: number };
     zombieEntrance!: { x: number; y: number; width: number };
@@ -82,6 +83,7 @@ class GameScene extends Phaser.Scene {
           });
       }
       create() {
+        this.emitState();
         const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
         background.setDisplaySize(this.sys.game.config.width as number, this.sys.game.config.height as number);
         background.setScrollFactor(0);
@@ -123,7 +125,13 @@ class GameScene extends Phaser.Scene {
         this.zombie = groundMap.createLayer('Zombie', zombie!)!;
 
         this.bouncer2.setVisible(false);
-    
+        this.time.addEvent({
+            delay: 100, // Emit state every 100ms
+            callback: this.emitState,
+            callbackScope: this,
+            loop: true
+          });
+      
         
         // Create 1inch layer using both 1inch and Props tilesets
         this.inchLayer = groundMap.createLayer('1inch', [inchTileset!, propsTileset!])!;
@@ -287,6 +295,12 @@ class GameScene extends Phaser.Scene {
         console.log('Pub Layer:', this.pubLayer);
         console.log('1inch Layer:', this.inchLayer);
       }
+      emitState = () => {
+        this.game.events.emit('gameStateUpdate', {
+          mission: this.mission,
+          npc2: this.npc2
+        });
+      }
       update() {
         // Player movement
         if (this.cursors.left.isDown) {
@@ -386,16 +400,15 @@ class GameScene extends Phaser.Scene {
         const playerIsInFrontOfZombie = 
           this.player.x >= this.zombieEntrance.x &&
           this.player.x <= this.zombieEntrance.x + this.zombieEntrance.width &&
-          Math.abs(this.player.y - this.zombieEntrance.y) < 20; // Allow some vertical tolerance
+          Math.abs(this.player.y - this.zombieEntrance.y) < 20;
     
         if (playerIsInFrontOfZombie) {
           this.talktoZombie.setVisible(true);
-          this.talktoZombie.setPosition(
-            this.player.x,
-            this.player.y - 50
-          );
-        } else {
+          this.talktoZombie.setPosition(this.player.x, this.player.y - 50);
+          this.npc2 = 'Zombie';
+        } else if (this.npc2 === 'Zombie') {
           this.talktoZombie.setVisible(false);
+          this.npc2 = '';
         }
       }
     checkHelperProximity() {
@@ -410,8 +423,10 @@ class GameScene extends Phaser.Scene {
             this.player.x,
             this.player.y - 50
           );
+          this.npc2 = 'Helper';
         } else {
           this.talktoHelper.setVisible(false);
+            this.npc2 = '';
         }
       }
     checkSatoshiProximity() {
@@ -426,8 +441,10 @@ class GameScene extends Phaser.Scene {
             this.player.x,
             this.player.y - 50
           );
+          this.npc2 = 'Satoshi';
         } else {
           this.talktoSatoshi.setVisible(false);
+          this.npc2 = '';
         }
       }
   checkPubProximity() {
@@ -458,8 +475,10 @@ class GameScene extends Phaser.Scene {
         this.player.x,
         this.player.y - 50
       );
+      this.npc2 = 'Bouncer';
     } else {
       this.talktoBouncer.setVisible(false);
+      this.npc2 = '';
     }
   }
   checkPubExitProximity() {
@@ -707,7 +726,7 @@ class GameScene extends Phaser.Scene {
         this.groundLayer.setCollisionByExclusion([-1], true);
         this.physics.add.collider(this.player, this.groundLayer);
         console.log("Collisions set up successfully.");
-    if (this.groundLayer && this.groundLayer.tilemapLayer && this.groundLayer.tilemapLayer.tilemap) {
+    if (this.groundLayer && this.groundLayer.tilemap) {
         console.log("Setting up collisions...");
         this.groundLayer.setCollisionByExclusion([-1], true);
         this.physics.add.collider(this.player, this.groundLayer);
@@ -792,6 +811,7 @@ class GameScene extends Phaser.Scene {
 }
 const GameComponent: React.FC = () => {
     const gameRef = useRef<Phaser.Game | null>(null);
+    const [gameState, setGameState] = useState({ mission: 2, npc2: '' });
   
     useEffect(() => {
       const config: Phaser.Types.Core.GameConfig = {
@@ -811,22 +831,37 @@ const GameComponent: React.FC = () => {
   
       gameRef.current = new Phaser.Game(config);
   
+      const handleGameStateUpdate = (state: { mission: number, npc2: string }) => {
+        setGameState(state);
+      };
+  
+      if (gameRef.current) {
+        gameRef.current.events.on('gameStateUpdate', handleGameStateUpdate);
+      }
+  
       return () => {
         if (gameRef.current) {
+          gameRef.current.events.off('gameStateUpdate', handleGameStateUpdate);
           gameRef.current.destroy(true);
         }
       };
     }, []);
   
-    return (<div className='flex justify-center items-center'>
-      <div className='flex flex-col justify-center items-center w-[640px]'>
-      {/* <DynamicWidget variant='dropdown' /> */}
+    useEffect(() => {
+      console.log('Game state updated:', gameState);
+    }, [gameState]);
   
-        <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
-  
-        <RetroConversationComponent />
+    return (
+      <div className='flex justify-center items-center'>
+        <div className='flex flex-col justify-center items-center w-[640px]'>
+          <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
+          <RetroConversationComponent/>
+          <div>Mission: {gameState.mission}</div>
+          <div>NPC2: {gameState.npc2}</div>
+        </div>
       </div>
-    </div>);
+    );
   };
+  
   
   export default GameComponent;
