@@ -422,7 +422,7 @@ class GameScene extends Phaser.Scene {
     if (this.graveRails) this.graveRails.setDepth(6);
     this.player.setDepth(7);
   
-    this.player.setPosition(400, 400);  // Example position, adjust as needed
+    this.player.setPosition(400, 100);  // Example position, adjust as needed
   
     if (this.enterButton) this.enterButton.setVisible(true);
     if (this.enterGraveButton) this.enterGraveButton.setVisible(true);
