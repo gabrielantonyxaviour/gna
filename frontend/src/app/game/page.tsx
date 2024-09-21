@@ -171,7 +171,7 @@ class GameScene extends Phaser.Scene {
         this.graveBg.setDepth(1);
         this.graveRails.setDepth(6);
         this.bouncer1.setDepth(5);
-        this.zombie.setDepth(6);
+        this.zombie.setDepth(7);
         this.bouncer2.setDepth(5);
         this.player.setDepth(7);
         // Player properties
