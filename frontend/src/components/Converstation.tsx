@@ -7,16 +7,38 @@ interface Message {
     text: string;
 }
 
-const RetroConversationComponent = () => {
-  const [currentSpeaker, setCurrentSpeaker] = useState('npc1');
+interface RetroConversationComponentProps {
+    npc2: string;
+}
+
+const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({ npc2 }) => {
+  const [currentSpeaker, setCurrentSpeaker] = useState('Hero');
   const [playerInput, setPlayerInput] = useState('');
   const [conversation, setConversation] = useState<Message[]>([
-    { speaker: 'Nakamura', text: 'Hello, traveler!' },
-    { speaker: 'npc2', text: 'Welcome to our village.' },
+    { speaker: 'Hero', text: 'Hello there!' },
   ]);
   const [displayedText, setDisplayedText] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
   const currentMessageIndex = useRef(0);
+
+  const getNpcDialogue = (npcName: string): string => {
+    switch (npcName) {
+      case 'zombie':
+        return "Braaains... I mean, hello there!";
+      case 'satoshi':
+        return "Welcome to the world of cryptocurrency. How can I assist you?";
+      case 'helper':
+        return "Greetings! I'm here to help. What do you need?";
+      case 'baddie':
+        return "Well, well, well... What do we have here?";
+      case 'kai cenat':
+        return "Yo, what's good? Ready to stream some chaos?";
+      case 'bouncer':
+        return "Hold it right there. Are you on the list?";
+      default:
+        return "";
+    }
+  };
 
   useEffect(() => {
     if (currentMessageIndex.current < conversation.length) {
@@ -24,6 +46,17 @@ const RetroConversationComponent = () => {
       setCurrentSpeaker(conversation[currentMessageIndex.current].speaker);
     }
   }, [conversation, currentMessageIndex.current]);
+
+  useEffect(() => {
+    if (npc2 && npc2 !== '') {
+      const npcDialogue = getNpcDialogue(npc2);
+      if (npcDialogue) {
+        const newMessage = { speaker: npc2, text: npcDialogue };
+        setConversation(prev => [...prev, newMessage]);
+        currentMessageIndex.current = conversation.length;
+      }
+    }
+  }, [npc2]);
 
   const animateText = (text: string) => {
     setIsAnimating(true);
@@ -46,10 +79,9 @@ const RetroConversationComponent = () => {
 
   const handleSubmit = () => {
     if (playerInput.trim() && !isAnimating) {
-      const newMessage = { speaker: 'player', text: playerInput };
+      const newMessage = { speaker: 'Hero', text: playerInput };
       setConversation(prev => [...prev, newMessage]);
       setPlayerInput('');
-      setCurrentSpeaker('npc' + Math.floor(Math.random() * 2 + 1));
       currentMessageIndex.current = conversation.length;
     }
   };
@@ -68,41 +100,27 @@ const RetroConversationComponent = () => {
     }
   };
 
-  const getSpeakerName = (speaker: string) => {
-    switch (speaker) {
-      case 'npc1':
-      case 'Nakamura':
-        return 'Nakamura';
-      case 'npc2':
-        return 'Bouncer';
-      case 'player':
-        return 'You';
-      default:
-        return speaker;
-    }
-  };
-
   return (
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto mt-1 bg-[#020817] border-2 border-gray-600 text-white rounded-sm">
       <div className="flex w-full mb-4 space-x-4">
-        <div className={`character flex-shrink-0 ${currentSpeaker === 'npc1' || currentSpeaker === 'Nakamura' ? 'speaking' : ''}`}>
-          <img src="/nouns/hero.png" alt="NPC 1" className="rounded-lg" />
+        <div className={`character flex-shrink-0 ${currentSpeaker === 'Hero' ? 'speaking' : ''}`}>
+          <img src="/nouns/hero.png" alt="Hero" className="rounded-lg" />
         </div>
         <div 
           onClick={handleDialogueClick}
           className="flex-grow p-1 bg-[#161D2A] rounded flex flex-col justify-center cursor-pointer"
         >
-            <div className={`flex flex-col ${currentSpeaker === 'npc2' ? 'items-end' : 'items-start'}`}>
+            <div className={`flex flex-col ${currentSpeaker !== 'Hero' ? 'items-end' : 'items-start'}`}>
               <span className="text-yellow-400 font-bold mb-1">
-                {getSpeakerName(currentSpeaker)}
+                {currentSpeaker}
               </span>
-              <div className={`p-3 bg-[#0d1117] rounded ${currentSpeaker === 'npc2' ? 'text-right' : 'text-left'}`}>
+              <div className={`p-3 bg-[#0d1117] rounded ${currentSpeaker !== 'Hero' ? 'text-right' : 'text-left'}`}>
                 {displayedText}
               </div>
             </div>
         </div>
-        <div className={`character flex-shrink-0 ${currentSpeaker === 'npc2' ? 'speaking' : ''}`}>
-          <img src="/nouns/bouncer.png" alt="NPC 2" className="rounded-lg" />
+        <div className={`character flex-shrink-0 ${currentSpeaker !== 'Hero' ? 'speaking' : ''}`}>
+          {npc2 !== '' && <img src={`/nouns/${npc2}.png`} alt={npc2} className="rounded-lg" />}
         </div>
       </div>
       <div className="flex w-full">
