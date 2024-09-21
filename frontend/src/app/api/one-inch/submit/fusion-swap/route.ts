@@ -1,9 +1,6 @@
 "use server";
 import { NextRequest } from "next/server";
 import { FusionSDK, NetworkEnum } from "@1inch/fusion-sdk";
-import { supportedchains } from "@/lib/constants";
-import { gnosis } from "viem/chains";
-import { parseEther, zeroAddress } from "viem";
 
 const ONE_INCH_API_KEY = process.env.NEXT_PUBLIC_ONE_INCH_API_KEY || "NOT_SET";
 
@@ -40,26 +37,4 @@ export async function POST(req: NextRequest, res: Response) {
       data: e.toString(),
     });
   }
-
-  //   const config = {
-  //     headers: {
-  //       Authorization: "Bearer " + ONE_INCH_API_KEY,
-  //     },
-  //     params: {},
-  //     paramsSerializer: {
-  //       indexes: null,
-  //     },
-  //   };
-
-  //   try {
-  //     const response = await axios.get(url, config);
-  //     console.log(response.data);
-
-  //     return Response.json({
-  //       success: true,
-  //       data: response.data,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
 }
