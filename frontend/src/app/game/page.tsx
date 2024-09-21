@@ -66,12 +66,18 @@ class GameScene extends Phaser.Scene {
         this.load.image('helperguy', '/nouns/helperguy.png');
         this.load.image('zombie', '/nouns/zombie.png');
         this.load.image('caveExt','/sprites/cave/caveExt.png')
+        this.load.image('caveInt','/sprites/cave/caveInt.png')
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
+        this.load.tilemapTiledJSON('caveInt', '/sprites/jsons/caveInt.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
         this.load.tilemapTiledJSON('graveInteriorMap', '/sprites/jsons/graveInterior.json');
         this.load.spritesheet('character', '/nouns/hero_sprite.png', {
             frameWidth: 64, // Adjust this to match your sprite width
+            frameHeight: 128 // Adjust this to match your sprite height
+          });
+          this.load.spritesheet('bullet', '/sprites/fireball.png', {
+            frameWidth: 128, // Adjust this to match your sprite width
             frameHeight: 128 // Adjust this to match your sprite height
           });
       }
@@ -154,6 +160,12 @@ class GameScene extends Phaser.Scene {
             frames: [{ key: 'character', frame: 1 }],
             frameRate: 20
           });
+          this.anims.create({
+            key: 'bullet_animation',
+            frames: this.anims.generateFrameNumbers('bullet', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+          });
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     
@@ -226,7 +238,7 @@ class GameScene extends Phaser.Scene {
             padding: { x: 10, y: 5 },
           });
         this.enterCaveButton.setInteractive();
-        this.enterCaveButton.on('pointerdown', this.enterPub, this);
+        this.enterCaveButton.on('pointerdown', this.enterCave, this);
         this.enterCaveButton.setVisible(false);
         this.enterCaveButton.setDepth(7);
         this.talktoZombie.setInteractive();
@@ -297,26 +309,40 @@ class GameScene extends Phaser.Scene {
           this.player.setVelocityY(-330);
         }
     
-        // Shooting
-        if (this.spaceKey.isDown && this.time.now - (this.player.getData('lastShootTime') as number) > 500) {
-          const bullet = this.bullets.create(this.player.x, this.player.y, 'bullet') as Phaser.Physics.Arcade.Sprite;
-          bullet.setCircle(4);
-          bullet.setTint(0xff0000);
-          bullet.setDepth(7);
-          if (bullet.body) {
-            (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+        if (this.cursors.left.isDown) {
+            this.player.setData('lastDirection', 'left');
+          } else if (this.cursors.right.isDown) {
+            this.player.setData('lastDirection', 'right');
           }
-          
-          const velocity = (this.player.body as Phaser.Physics.Arcade.Body).velocity.x > 0 ? 400 : -400;
-          bullet.setVelocity(velocity, 0);
-    
-          this.time.delayedCall(1500, () => {
-            bullet.destroy();
-          });
-    
-          this.player.setData('lastShootTime', this.time.now);
-        }
-    
+      
+          // Modify the shooting logic in the update method
+          if (this.spaceKey.isDown && this.time.now - (this.player.getData('lastShootTime') as number) > 500) {
+            const bulletX = this.player.getData('lastDirection') === 'left' ? this.player.x - 20 : this.player.x + 20;
+            const bullet = this.bullets.create(bulletX, this.player.y, 'bullet') as Phaser.Physics.Arcade.Sprite;
+            bullet.setDisplaySize(64, 64);
+            bullet.setDepth(7);
+            if (bullet.body) {
+              (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+            }
+            
+            const direction = this.player.getData('lastDirection') === 'left' ? -1 : 1;
+            const velocity = 400 * direction;
+            bullet.setVelocity(velocity, 0);
+      
+            // Play the bullet animation
+            bullet.play('bullet_animation');
+      
+            // Flip the bullet sprite if shooting right
+            bullet.flipX = this.player.getData('lastDirection') === 'right';
+      
+            this.time.delayedCall(1500, () => {
+              bullet.destroy();
+            });
+      
+            this.player.setData('lastShootTime', this.time.now);
+          }
+        
+        
         // Check if player is near pub entrance
         if(this.mission==1){
             this.checkBouncerProximity();
@@ -544,7 +570,52 @@ class GameScene extends Phaser.Scene {
     // Emit an event to notify that we've entered the pub
     this.events.emit('enteredPub');
   }
+  enterCave() {
+    this.isInPub = true;
+    
+    // Create new tilemap for pub interior
+    const caveIntMap = this.make.tilemap({ key: 'caveInt' });
+    const tilesetInterior = caveIntMap.addTilesetImage('caveInt', 'caveInt');
 
+    if (!tilesetInterior) {
+      console.error("Failed to load pub interior tileset");
+      return;
+    }
+    this.groundLayer.destroy();
+    this.propsLayer.destroy();
+    this.caveExt.destroy();
+    this.groundLayer = caveIntMap.createLayer('ground', tilesetInterior)!;
+    this.propsLayer = caveIntMap.createLayer('bg', tilesetInterior)!;
+    this.groundLayer.setDepth(2);
+    this.propsLayer.setDepth(1);    
+    if (!this.groundLayer || !this.propsLayer) {
+      console.error("Failed to create pub interior layers");
+      return;
+    }
+    // Adjust world bounds and camera
+    this.physics.world.setBounds(0, 0, caveIntMap.widthInPixels, caveIntMap.heightInPixels);
+    this.cameras.main.setBounds(0, 0, caveIntMap.widthInPixels, caveIntMap.heightInPixels);
+
+    // Set player position inside pub
+    this.player.setPosition(10, caveIntMap.heightInPixels/3);
+
+    // Hide enter button
+    this.enterButton.setVisible(false);
+
+    // Set collision for ground layer
+    this.groundLayer.setCollisionByExclusion([-1], true);
+
+    // Remove existing colliders
+    this.physics.world.colliders.destroy();
+
+    // Add new collider
+    this.physics.add.collider(this.player, this.groundLayer);
+
+    console.log("Entered pub. Ground layer:", this.groundLayer);
+
+    // Emit an event to notify that we've entered the pub
+    this.events.emit('enteredPub');
+  }
  
   exitPub() {
     console.log("Exiting pub...");
