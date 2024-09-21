@@ -102,8 +102,8 @@
             "scale": 1.1397,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 586.1191541633764,
-                "y": 201.80749319996488
+                "x": 594.8933929981574,
+                "y": 193.0332543651838
             }
         },
         "jsons/groundup.json#1inch_color_black": {
@@ -154,13 +154,16 @@
         },
         "jsons/pubinterior.json": {
             "scale": 0.89,
-            "selectedLayer": 0,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 448.314606741573,
-                "y": 239.3258426966292
+                "x": 430.3370786516854,
+                "y": 229.2134831460674
             }
         },
         "jsons/pubinterior.json#pubInterior": {
+            "scaleInDock": 1
+        },
+        "jsons/pubinterior.json#villan1": {
             "scaleInDock": 1
         }
     },

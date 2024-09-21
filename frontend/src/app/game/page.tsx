@@ -23,6 +23,7 @@ class GameScene extends Phaser.Scene {
     bouncer1!: Phaser.Tilemaps.TilemapLayer;
     bouncer2!: Phaser.Tilemaps.TilemapLayer;
     satoshi!: Phaser.Tilemaps.TilemapLayer;
+    helperguy!: Phaser.Tilemaps.TilemapLayer;
     villain1!: Phaser.Tilemaps.TilemapLayer;
     talktoBouncer!: Phaser.GameObjects.Text;
     talktoSatoshi!: Phaser.GameObjects.Text;
@@ -54,7 +55,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('bouncer', '/nouns/bouncer.png');
         this.load.image('satoshi', '/nouns/satoshi.png');
         this.load.image('villan1', '/nouns/villan1.png');
-
+        this.load.image('helperguy', '/nouns/helperguy.png');
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
@@ -91,7 +92,7 @@ class GameScene extends Phaser.Scene {
         const graveSalt = groundMap.addTilesetImage('Salt', 'Salt'); 
         const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2');
         const bouncer= groundMap.addTilesetImage('bouncer', 'bouncer');
-        const satoshi= groundMap.addTilesetImage('satoshi', 'satoshi'); 
+        const satoshi= groundMap.addTilesetImage('satoshi', 'satoshi');
         const pubTileset= groundMap.addTilesetImage('pubinterior', 'pubinterior'); 
         this.groundLayer = groundMap.createLayer('Ground', tilesTileset!)!;
         this.propsLayer = groundMap.createLayer('Props', propsTileset!)!;
@@ -167,7 +168,6 @@ class GameScene extends Phaser.Scene {
         this.bouncer1.setDepth(5);
         this.bouncer2.setDepth(5);
         this.player.setDepth(7);
-        
         // Player properties
         this.player.setData('canJump', true);
         this.player.setData('lastShootTime', 0);
@@ -378,6 +378,7 @@ class GameScene extends Phaser.Scene {
     // Create new tilemap for pub interior
     const pubInteriorMap = this.make.tilemap({ key: 'pubInteriorMap' });
     const tilesetInterior = pubInteriorMap.addTilesetImage('pubInterior', 'pubinterior');
+    const helperguy = pubInteriorMap.addTilesetImage('helperguy', 'helperguy');
     const villan1 = pubInteriorMap.addTilesetImage('villan1', 'villan1');
 
     if (!tilesetInterior) {
@@ -408,7 +409,13 @@ class GameScene extends Phaser.Scene {
     } else {
       console.error("Failed to load villan1 tileset");
     }
+    if (helperguy) {
+      this.helperguy = pubInteriorMap.createLayer('helperguy', helperguy)!;
+    } else {
+      console.error("Failed to load helperguy tileset");
+    }
     this.villain1.setDepth(2);
+    this.helperguy.setDepth(2);
     this.groundLayer.setDepth(2);
     this.propsLayer.setDepth(1);    
     this.villain1.setCollisionByExclusion([-1], true);
@@ -455,6 +462,7 @@ class GameScene extends Phaser.Scene {
     if (this.groundLayer) this.groundLayer.destroy();
     if (this.propsLayer) this.propsLayer.destroy();
     if(this.villain1) this.villain1.destroy();
+    if(this.helperguy) this.helperguy.destroy();
   
     // Recreate main scene layers
     const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
@@ -478,6 +486,7 @@ class GameScene extends Phaser.Scene {
     const graveSalt = groundMap.addTilesetImage('Salt', 'Salt');
     const graveBg = groundMap.addTilesetImage('Grass_background_2', 'Grass_background_2');
     const bouncer= groundMap.addTilesetImage('bouncer', 'bouncer'); 
+    const satoshi= groundMap.addTilesetImage('satoshi', 'satoshi');
 
   
     if (!tilesTileset || !propsTileset || !buildingsTileset || !inchTileset || !graveTileset || !graveSalt || !graveBg) {
@@ -495,6 +504,7 @@ class GameScene extends Phaser.Scene {
     this.graveSalt = groundMap.createLayer('Grave Salt', graveSalt)!;
     this.graveProps = groundMap.createLayer('Grave Props', graveTileset)!;
     this.graveBg = groundMap.createLayer('GraveBG', graveBg)!;
+    this.satoshi = groundMap.createLayer('Satoshi', satoshi!)!;
     this.inchLayer = groundMap.createLayer('1inch', [inchTileset, propsTileset])!;
   
     if (!this.groundLayer) {
