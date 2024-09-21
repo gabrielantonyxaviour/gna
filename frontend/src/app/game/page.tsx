@@ -22,6 +22,7 @@ class GameScene extends Phaser.Scene {
     graveSalt!: Phaser.Tilemaps.TilemapLayer; 
     graveBg!: Phaser.Tilemaps.TilemapLayer;
     isInPub: boolean = false;
+    isInGrave: boolean = false;
 
     pubEntrance!: { x: number; y: number; width: number };
     pubExit!: { x: number; y: number; width: number };
@@ -42,10 +43,14 @@ class GameScene extends Phaser.Scene {
         this.load.image('Salt', '/sprites/Graveyard/Salt.png');
         this.load.image('Grass_background_2', '/sprites/Graveyard/Grass_background_2.png');
         this.load.image('pubinterior', '/sprites/pubInterior/pubinterior.png');
+        this.load.image('graveinterior', '/sprites/Graveyard/graveInterior.png');
+
         this.load.image('logo4', '/sprites/logo4.png');
         this.load.tilemapTiledJSON('groundMap', '/sprites/jsons/groundup.json');
         this.load.tilemapTiledJSON('bgL2Map', '/sprites/jsons/bgL2.json');
         this.load.tilemapTiledJSON('pubInteriorMap', '/sprites/jsons/pubinterior.json');
+        this.load.tilemapTiledJSON('graveInteriorMap', '/sprites/jsons/graveInterior.json');
+
         
       }
       create() {
@@ -160,7 +165,7 @@ class GameScene extends Phaser.Scene {
           padding: { x: 10, y: 5 },
         });
         this.enterGraveButton.setInteractive();
-        this.enterGraveButton.on('pointerdown', this.enterPub, this);
+        this.enterGraveButton.on('pointerdown', this.enterGrave, this);
         this.enterGraveButton.setVisible(false);
         this.enterGraveButton.setDepth(7);
     
@@ -416,6 +421,64 @@ class GameScene extends Phaser.Scene {
     this.events.emit('exitedPub');
   }
 
+  enterGrave() {
+    this.isInGrave = true;
+    
+    // Create new tilemap for grave interior
+    const graveInteriorMap = this.make.tilemap({ key: 'graveInteriorMap' });
+    const tilesetInterior = graveInteriorMap.addTilesetImage('graveInterior', 'graveinterior');
+
+    if (!tilesetInterior) {
+      console.error("Failed to load grave interior tileset");
+      return;
+    }
+
+    // Clear existing layers
+    this.bgL2Logo.setVisible(false);
+    this.groundLayer.destroy();
+    this.propsLayer.destroy();
+    this.pubLayer.destroy();
+    this.inchLayer.destroy();
+    // this.bgL2Layer.destroy();
+    this.graveRails.destroy();
+    this.graveSalt.destroy();
+    this.graveProps.destroy();
+    this.graveBg.destroy();
+
+    // Create new layers for grave interior
+    this.groundLayer = graveInteriorMap.createLayer('ground', tilesetInterior)!;
+    this.propsLayer = graveInteriorMap.createLayer('bg', tilesetInterior)!;
+    this.groundLayer.setDepth(2);
+    this.propsLayer.setDepth(1);    
+    if (!this.groundLayer || !this.propsLayer) {
+      console.error("Failed to create grave interior layers");
+      return;
+    }
+
+    // Adjust world bounds and camera
+    this.physics.world.setBounds(0, 0, graveInteriorMap.widthInPixels, graveInteriorMap.heightInPixels);
+    this.cameras.main.setBounds(0, 0, graveInteriorMap.widthInPixels, graveInteriorMap.heightInPixels);
+
+    // Set player position inside pub
+    this.player.setPosition(10, graveInteriorMap.heightInPixels/3);
+
+    // Hide enter button
+    this.enterButton.setVisible(false);
+
+    // Set collision for ground layer
+    this.groundLayer.setCollisionByExclusion([-1], true);
+
+    // Remove existing colliders
+    this.physics.world.colliders.destroy();
+
+    // Add new collider
+    this.physics.add.collider(this.player, this.groundLayer);
+
+    console.log("Entered pub. Ground layer:", this.groundLayer);
+
+    // Emit an event to notify that we've entered the pub
+    this.events.emit('enteredPub');
+  }
 }
 const GameComponent: React.FC = () => {
     const gameRef = useRef<Phaser.Game | null>(null);
