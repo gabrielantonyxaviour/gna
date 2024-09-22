@@ -60,7 +60,9 @@
 IDKit integration - https://github.com/gabrielantonyxaviour/gna/blob/main/frontend/src/components/WorldcoinComponent.tsx
 
 #### 1Inch
-
+SDK integration in frontend - https://github.com/gabrielantonyxaviour/gna/blob/main/frontend/src/components/modals/_components/swap.tsx#L456
+API integration in Frontend - https://github.com/gabrielantonyxaviour/gna/tree/main/frontend/src/app/api/one-inch
+SDK Integration in Phala AI Agents - https://github.com/gabrielantonyxaviour/gna/blob/main/ai-agents/SignAI/src/index.ts#L151
 
 #### Sign Protocol
 Schema - https://testnet-scan.sign.global/schema/onchain_evm_10200_0x7a
