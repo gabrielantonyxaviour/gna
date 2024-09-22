@@ -57,24 +57,30 @@
 ## Sponsors
 
 #### Worldcoin
+IDKit integration - https://github.com/gabrielantonyxaviour/gna/blob/main/frontend/src/components/WorldcoinComponent.tsx
 
 #### 1Inch
 
+
 #### Sign Protocol
+Schema - https://testnet-scan.sign.global/schema/onchain_evm_10200_0x7a
+Attesting Milestones in Gnosis Chiado via Phala AI agent - https://github.com/gabrielantonyxaviour/gna/blob/main/ai-agents/SignAI/src/index.ts#L52
 
 #### Gnosis Chain
+Chain Setup in Frotend - https://github.com/gabrielantonyxaviour/gna/blob/main/frontend/src/lib/constants.ts#L53
 
-#### Nethermind
-
-#### Hyperlane
 
 #### Dynamic
+Sign in with Dynamic - https://github.com/gabrielantonyxaviour/gna/blob/main/frontend/src/components/layout-component.tsx#L23
 
 #### Phala Network
+In game Characters as AI Agents - https://github.com/gabrielantonyxaviour/gna/tree/main/ai-agents 
 
 #### Ledger
+Sign in with Ledger powered by Dynamic - https://github.com/gabrielantonyxaviour/gna/blob/main/frontend/src/components/layout-component.tsx#L23
 
 #### NounsDAO
+Usage of Custom Designed Noun Characters in Game as AI agents - https://github.com/gabrielantonyxaviour/gna/tree/main/frontend/public/nouns
 
 ## Installation
 
