@@ -6,6 +6,7 @@ import Modals from '@/components/modals';
 import { fetchBalanceAndPrice } from '@/lib/one-inch/fetch-balance-and-price';
 import { useEnvironmentContext } from '@/components/context';
 import { useAccount } from 'wagmi';
+import AskSatoshiButton from '@/components/Doubts';
 class GameScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -56,6 +57,7 @@ class GameScene extends Phaser.Scene {
     constructor() {
       super('GameScene');
     }
+    
     preload() {
         this.load.image('background', '/sprites/Background/BaseColor.png');
         this.load.image('Tiles', '/sprites/Assets/Tiles.png');
@@ -185,7 +187,7 @@ class GameScene extends Phaser.Scene {
             repeat: -1
           });
         this.cursors = this.input.keyboard!.createCursorKeys();
-        this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
     
         // Camera
         this.cameras.main.setBounds(0, 0, groundMap.widthInPixels, groundMap.heightInPixels);
@@ -864,7 +866,8 @@ const GameComponent: React.FC = () => {
     const [gameState, setGameState] = useState({ mission: 0, npc2: '' });
     const [loading, setLoading]=useState(false)
     const {setBalances, setPrices}=useEnvironmentContext()
-    const {address}=useAccount()
+    const {address,status}=useAccount()
+    const [modalstate, setModalstate]=useState(0)
     const setmission= (mission: number) => {
         setGameState({ mission, npc2: gameState.npc2 });
       }
@@ -903,8 +906,11 @@ const GameComponent: React.FC = () => {
     }, []);
   
     useEffect(() => {
-      console.log('Game state updated:', gameState);
-    }, [gameState]);
+      // console.log('Game state updated:', gameState);
+      if(gameState.npc2=="helperguy"){
+        setModalstate(1)
+      } 
+    }, [gameState.npc2]);
 
     useEffect(() => {
       if (status === "connected" && address != undefined) {
@@ -914,15 +920,19 @@ const GameComponent: React.FC = () => {
         });
       }
     }, [status, address]);
-  
+
+
+
     return (
       <div className='flex justify-center items-center'>
         <div className='flex flex-col justify-center items-center w-[640px]'>
+          <AskSatoshiButton/>
+
           <div id="phaser-game" className='border-2 border-gray-600 border-b-0'/>
           <RetroConversationComponent mission={gameState.mission} npc2={gameState.npc2}/>
           <div>Mission: {gameState.mission}</div>
           <div>NPC2: {gameState.npc2}</div>
-          <Modals option={0} setOption={setmission} />
+          <Modals option={modalstate} setOption={setmission} />
         </div>
       </div>
     );

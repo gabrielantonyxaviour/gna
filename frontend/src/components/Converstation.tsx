@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
 
 interface Message {
@@ -10,7 +11,8 @@ const characterMap: {[key: number]: {name: string, image: string}} = {
   1: { name: 'Hero', image: '/nouns/hero.png' },
   2: { name: 'Satoshi', image: '/nouns/satoshi.png' },
   3: { name: 'Helper', image: '/nouns/helper.png' },
-  4: { name: 'Zombie', image: '/nouns/zombie.png' }
+  4: { name: 'Zombie', image: '/nouns/zombie.png' },
+  5: {name: 'Bouncer', image: '/nouns/bouncer.png'}
 };
 
 interface RetroConversationComponentProps {
@@ -24,6 +26,29 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [nextSpeaker, setNextSpeaker] = useState<string | null>(null);
   const currentMessageIndex = useRef(0);
+  const [userInput, setUserInput] = useState('');
+  const [showInput, setShowInput] = useState(false);
+  const [loading, setLoading]=useState(false)
+  const [currentSpeaker, setCurrentSpeaker]=useState('')  // ... (previous useEffects and functions remain the same)
+
+  const handleUserInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserInput(e.target.value);
+  };
+
+  const handleSubmitUserInput = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+    if (userInput.trim()) {
+      // Add user's message to the conversation history
+      setCoversationHistory([...conversationHistroy, userInput]);
+      
+        setCurrentSpeaker('')
+        
+      
+      // Clear the input field
+      setUserInput('');
+    }
+  };
 
   const tutorialConvo: Message[] = [
     { id: 1, characterId: 2, message: "Hey Degen, Satoshi here, Welcome to Grand Nouns Auto, connect your Ledger to get started." },
@@ -62,6 +87,8 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
     { id: 3, characterId: 2, message: "Well Well Well You did it, Degen. The city is yours now. Welcome to the throne of the Badlands." }
   ];
 
+  const [conversationHistroy, setCoversationHistory] = useState<string[]>([])
+
   useEffect(() => {
     switch(mission) {
       case 0:
@@ -83,6 +110,7 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
     checkAndDisplayMessage();
   }, [mission, npc2]);
 
+
   const animateText = (text: string) => {
     setIsAnimating(true);
     let i = 0;
@@ -98,6 +126,40 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
     animate();
   };
 
+  useEffect(()=>{
+    if(nextSpeaker=='Satoshi')setNextSpeaker('Bouncer')
+      if(nextSpeaker=='Bouncer')setNextSpeaker(null)
+    if((npc2=='Bouncer'&& npc2!=currentSpeaker)){
+      setCurrentSpeaker('Bouncer')
+      setLoading(true)
+      try{
+        if(conversationHistroy.length==0){
+          
+          axios.get("/api/ai/convo-one?query=1").then((res)=>{
+            setNextSpeaker(null)
+            console.log(res.data.data.message)
+            animateText(res.data.data.message)
+            setCoversationHistory([...conversationHistroy, res.data.data.message])
+          })
+        }else{
+          console.log(conversationHistroy)
+          axios.get("/api/ai/convo-one?query="+conversationHistroy).then((res)=>{
+
+            
+            console.log(res.data.data.message)
+            animateText(res.data.data.message)
+            setCoversationHistory([...conversationHistroy, res.data.data.message])
+          })
+        }
+      }catch(e){
+        console.log(e)
+      }
+      setLoading(false)
+    }
+  },[npc2, conversationHistroy])
+
+
+
   const checkAndDisplayMessage = () => {
     if (currentMessageIndex.current < currentDialogue.length) {
       const currentMessage = currentDialogue[currentMessageIndex.current];
@@ -111,7 +173,7 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
         setNextSpeaker(nextCharacter.name);
       }
     } else {
-      setNextSpeaker(null);
+      if(nextSpeaker=="Satoshi")setNextSpeaker('Bouncer'); else setNextSpeaker(null);
     }
   };
 
@@ -148,25 +210,52 @@ const RetroConversationComponent: React.FC<RetroConversationComponentProps> = ({
           onClick={handleDialogueClick}
           className="flex-grow p-1 bg-[#161D2A] rounded flex flex-col justify-center cursor-pointer"
         >
-            {nextSpeaker ? (
-              <div className="text-center text-yellow-400">
-                Go find {nextSpeaker} to continue the mission.
+          {nextSpeaker ? (
+            <div className="text-center text-yellow-400">
+              Go find {nextSpeaker} to continue the mission.
+            </div>
+          ) : (
+            <div className={`flex flex-col ${currentCharacter.name !== 'Hero' ? 'items-end' : 'items-start'}`}>
+              <span className="text-yellow-400 font-bold mb-1">
+                {currentCharacter.name}
+              </span>
+              <div className={`p-3 bg-[#0d1117] rounded ${currentCharacter.name !== 'Hero' ? 'text-right' : 'text-left'}`}>
+                {displayedText}
               </div>
-            ) : (
-              <div className={`flex flex-col ${currentCharacter.name !== 'Hero' ? 'items-end' : 'items-start'}`}>
-                <span className="text-yellow-400 font-bold mb-1">
-                  {currentCharacter.name}
-                </span>
-                <div className={`p-3 bg-[#0d1117] rounded ${currentCharacter.name !== 'Hero' ? 'text-right' : 'text-left'}`}>
-                  {displayedText}
-                </div>
-              </div>
-            )}
+            </div>
+          )}
         </div>
         <div className={`character flex-shrink-0 ${currentCharacter.name !== 'Hero' ? 'speaking' : ''}`}>
-          {currentCharacter.name !== 'Hero' && <img src={currentCharacter.image} alt={currentCharacter.name} className="rounded-lg" />}
+          {currentCharacter.name !== 'Hero' && <img src={`/nouns/${npc2}.png`} alt={npc2} className="rounded-lg" />}
         </div>
       </div>
+      
+      <div className="w-full p-4">
+  {showInput && (
+    <form onSubmit={handleSubmitUserInput} className="flex space-x-2">
+      <input
+        type="text"
+        value={userInput}
+        onChange={handleUserInput}
+        onKeyDown={(e) => {
+          if (e.key === ' ') {
+            e.stopPropagation();
+          }
+        }}
+        className="flex-grow p-2 bg-[#161D2A] rounded text-white"
+        placeholder="Type your message here..."
+      />
+      <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">Send</button>
+    </form>
+  )}
+  <button 
+    onClick={() => setShowInput(!showInput)} 
+    className="mt-2 px-4 py-2 bg-gray-500 text-white rounded"
+  >
+    {showInput ? 'Hide Input' : 'Show Input'}
+  </button>
+</div>
+      
       <style jsx>{`
         .character {
           transition: all 0.3s ease;
